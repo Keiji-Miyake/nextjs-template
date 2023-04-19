@@ -1,16 +1,16 @@
 {
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  // "editor.formatOnSave": true,
+  // "editor.codeActionsOnSave": {
+  //   "source.organizeImports": true,
+  //   "source.fixAll.eslint": true
+  // },
+  "typescript.referencesCodeLens.enabled": true,
   "files.exclude": {
     "**/node_modules": true
   },
-  "editor.tabSize": 2,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": true,
-    "source.fixAll.eslint": true
-  },
   "[markdown]": {
     "files.trimTrailingWhitespace": false
-  },
-  "typescript.referencesCodeLens.enabled": true
+  }
 }
