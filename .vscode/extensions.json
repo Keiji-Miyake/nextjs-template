@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "bradlc.vscode-tailwindcss",
+    "burkeholland.simple-react-snippets",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode",
+    "Gruntfuggly.todo-tree",
+    "humao.rest-client",
+    "redhat.vscode-yaml",
+    "rvest.vs-code-prettier-eslint",
+    "TabNine.tabnine-vscode",
+    "unifiedjs.vscode-mdx",
+    "yoavbls.pretty-ts-errors"
+  ]
+}
