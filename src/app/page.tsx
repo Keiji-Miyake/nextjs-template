@@ -1,5 +1,10 @@
+import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "My Page Title",
+};
 
 const inter = Inter({ subsets: ["latin"] });
 
