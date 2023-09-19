@@ -12,5 +12,6 @@
   },
   "[markdown]": {
     "files.trimTrailingWhitespace": false
-  }
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }
