@@ -1,3 +1,5 @@
 .husky
 *ignore
 *.svg
+.env*
+prisma/

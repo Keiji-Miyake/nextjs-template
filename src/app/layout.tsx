@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import React from "react";
+
+import NextAuthProvider from "@/providers/NextAuth";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -10,7 +12,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>
+        <NextAuthProvider>{children}</NextAuthProvider>
+      </body>
     </html>
   );
 }

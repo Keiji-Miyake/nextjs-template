@@ -11,7 +11,7 @@
     {
       "files": ["*.jsx", "*.tsx"],
       "options": {
-        "printWidth": 360
+        "printWidth": 120
       }
     }
   ]

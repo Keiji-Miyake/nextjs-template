@@ -1,11 +1,12 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
-  // "editor.formatOnSave": true,
-  // "editor.codeActionsOnSave": {
-  //   "source.organizeImports": true,
-  //   "source.fixAll.eslint": true
-  // },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": true,
+    "source.organizeImports": true,
+    "source.fixAll.eslint": true
+  },
   "typescript.referencesCodeLens.enabled": true,
   "files.exclude": {
     "**/node_modules": true
@@ -13,5 +14,8 @@
   "[markdown]": {
     "files.trimTrailingWhitespace": false
   },
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
 }
