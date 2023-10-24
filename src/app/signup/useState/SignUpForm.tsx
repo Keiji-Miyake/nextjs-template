@@ -1,4 +1,3 @@
-// Path: src/app/signup/SignUpForm.tsx
 // SignUpFormコンポーネント
 "use client";
 
