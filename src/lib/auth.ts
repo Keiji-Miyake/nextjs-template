@@ -38,23 +38,23 @@ export const authOptions: NextAuthOptions = {
         if (!credentials) {
           return null;
         }
-        const owner = await prisma.owner.findUnique({
+        const member = await prisma.member.findUnique({
           where: { email: credentials.email },
         });
 
-        if (owner) {
+        if (member) {
           const isValidPassword = await bcrypt.compare(
             credentials.password,
-            owner.password,
+            member.password,
           );
 
           if (isValidPassword) {
             return {
-              id: owner.id.toString(),
-              email: owner.email,
-              password: owner.password,
-              createdAt: owner.createdAt,
-              updatedAt: owner.updatedAt,
+              id: member.id.toString(),
+              email: member.email,
+              password: member.password,
+              createdAt: member.createdAt,
+              updatedAt: member.updatedAt,
             };
           }
         }

@@ -6,5 +6,5 @@ export default withAuth({
   },
 });
 export const config = {
-  matcher: ["/((?!api|signup|data-fetch).*)"],
+  matcher: ["/dashboard/:path*"],
 };

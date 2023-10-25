@@ -10,34 +10,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Owner {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  shops     Shop[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Member {
+  id         Int        @id @default(autoincrement())
+  memberName String?    @unique
+  email      String     @unique
+  password   String
+  authToken  String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  deletedAt  DateTime?
+  shops      Shop[]
+  employees  Employee[]
 }
 
 model Shop {
-  id        Int        @id @default(autoincrement())
-  name      String
-  address   String
-  ownerId   String
-  employees Employee[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id         Int            @id @default(autoincrement())
+  memberId   Int
+  shopName   String         @unique
+  shopUrl    String         @unique
+  platformId Int
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  deletedAt  DateTime?
+  member     Member         @relation(fields: [memberId], references: [id])
+  platform   Platform       @relation(fields: [platformId], references: [id])
+  employees  EmployeeShop[] // 多対多リレーションを追加
+}
 
-  owner Owner @relation(fields: [ownerId], references: [id])
+model Platform {
+  id                       Int    @id @default(autoincrement())
+  platformName             String @unique
+  platformSpecificSettings String // 適切なデータ型に修正
+  shops                    Shop[]
 }
 
 model Employee {
-  id        String    @id @default(cuid())
-  shopId    Int
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           Int            @id @default(autoincrement())
+  memberId     Int
+  employeeName String         @unique
+  email        String         @unique
+  password     String
+  authToken    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  member       Member         @relation(fields: [memberId], references: [id])
+  shops        EmployeeShop[] // 多対多リレーションを追加
+}
 
-  shop Shop @relation(fields: [shopId], references: [id])
+model EmployeeShop {
+  id         Int      @id @default(autoincrement())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+  shop       Shop     @relation(fields: [shopId], references: [id])
+  shopId     Int
 }

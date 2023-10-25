@@ -12,12 +12,19 @@ const UserProfile = () => {
       {!session ? (
         <div>
           <p>未ログイン</p>
-          <Link href="/signin">ログイン</Link>
+          <p>
+            <Link href="/signin">ログイン</Link>
+          </p>
+          <p>
+            <Link href="/signup/useForm">新規登録</Link>
+          </p>
         </div>
       ) : (
         <div>
           <p>ログイン済み</p>
-          <button onClick={() => signOut()}>ログアウト</button>
+          <p>
+            <button onClick={() => signOut()}>ログアウト</button>
+          </p>
         </div>
       )}
     </div>
