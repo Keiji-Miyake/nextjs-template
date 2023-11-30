@@ -1,10 +1,11 @@
 -- CreateTable
 CREATE TABLE "Member" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "memberName" TEXT,
+    "name" TEXT,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "authToken" TEXT,
+    "profileIcon" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "deletedAt" DATETIME
@@ -55,7 +56,7 @@ CREATE TABLE "EmployeeShop" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Member_memberName_key" ON "Member"("memberName");
+CREATE UNIQUE INDEX "Member_name_key" ON "Member"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Member_email_key" ON "Member"("email");

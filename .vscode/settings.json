@@ -19,6 +19,5 @@
     "editor.defaultFormatter": "Prisma.prisma"
   },
   "editor.formatOnPaste": true,
-  "editor.formatOnSaveMode": "modificationsIfAvailable",
-  "cSpell.words": ["hookform"]
+  "editor.formatOnSaveMode": "modificationsIfAvailable"
 }

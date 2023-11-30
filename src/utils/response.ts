@@ -97,7 +97,11 @@ export const errorResponse = <T = unknown>(
     }
   } else {
     errorData = {
-      messages: ["サーバーでエラーが発生しました。"],
+      messages: [
+        "サーバーでエラーが発生しました。",
+        "時間をおいて再度お試しください。",
+        `エラー: ${error}`,
+      ],
     };
   }
 

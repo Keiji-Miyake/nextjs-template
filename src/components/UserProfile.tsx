@@ -8,7 +8,9 @@ const UserProfile = () => {
   const { data: session } = useSession();
   return (
     <div>
-      <h2>ユーザープロファイル</h2>
+      <h2>
+        <Link href="/profile">ユーザープロファイル</Link>
+      </h2>
       {!session ? (
         <div>
           <p>未ログイン</p>

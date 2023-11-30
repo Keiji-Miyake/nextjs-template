@@ -1,0 +1,25 @@
+version: '3'
+services:
+  minio:
+    image: minio/minio
+    ports:
+      - ${MINIO_PORT:-9000}:9000
+      - ${MINIO_CONSOLE_PORT:-9001}:9001
+    volumes:
+      - ./.minio/data:/export
+      - ./.minio/config:/root/.minio
+    environment:
+      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID:-minio}
+      MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY:-minio123}
+    command: server /export --console-address ":9001"
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (/usr/bin/mc config host add myminio http://minio:9000 ${AWS_ACCESS_KEY_ID:-minio} ${AWS_SECRET_ACCESS_KEY:-minio123}) do echo '...waiting...' && sleep 1; done;
+      /usr/bin/mc mb myminio/${S3_BUCKET_NAME:-mybucket} --region ${S3_REGION:-ap-northeast-1};
+      /usr/bin/mc policy download myminio/${S3_BUCKET_NAME:-mybucket};
+      exit 0;
+      "

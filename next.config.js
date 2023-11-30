@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    dirs: ['src'],
-  },
   reactStrictMode: true,
+  eslint: {
+    dirs: ["src"],
+  },
   experimental: {
-    serverActions: true,
-    serverComponentsExternalPackages: ['@prisma/client', 'bcrypt'],
+    serverComponentsExternalPackages: ["@prisma/client", "bcrypt"],
   },
 };
 

@@ -1,9 +1,11 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcrypt";
-import { NextAuthOptions } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
 
 import { prisma } from "./prisma";
+
+import type { NextAuthOptions } from "next-auth/index";
 
 // NextAuth.jsの設定ファイル
 // Credentials Providerを使う
@@ -64,15 +66,6 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    session: ({ session, token }) => {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id,
-        },
-      };
-    },
     jwt: ({ token, user }) => {
       if (user) {
         const u = user as unknown as any;
@@ -83,5 +76,23 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
+    session: ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+        },
+      };
+    },
   },
+};
+
+export const getAuthSession = async () => {
+  const session = await getServerSession(authOptions);
+  if (session) {
+    return session;
+  } else {
+    return new Response("Unauthorized", { status: 401 });
+  }
 };
