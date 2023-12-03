@@ -26,7 +26,6 @@ const EditForm = () => {
 
   // ログイン中（自身）のユーザーの会員情報を取得する
   const { member, isLoading, isError } = useMember(session?.user?.id);
-  console.debug("member:", member);
 
   // useFormを使ったリクエストを作成する
   const form = useForm<TProfileEditSchema>({

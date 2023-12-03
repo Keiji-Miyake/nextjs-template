@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { signIn } from "next-auth/react";
-
 import MemberService from "@/domains/member/service";
 import { prisma } from "@/lib/prisma";
 import { errorResponse, successResponse } from "@/utils/response";
@@ -38,13 +36,6 @@ export async function POST(req: NextRequest) {
     }
 
     const newMember = await memberService.registerMember(validatedData);
-
-    //作成成功後、ログインしている状態にする
-    signIn("credentials", {
-      email: validatedData.email,
-      password: validatedData.password,
-      callbackUrl: "/",
-    });
 
     return NextResponse.json(newMember, { status: 201 });
   } catch (error: any) {
