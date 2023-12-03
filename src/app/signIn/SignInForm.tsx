@@ -27,13 +27,15 @@ const SignInForm = () => {
         password: data.password,
       }).then((res) => {
         if (res?.error) {
-          console.log(res.error);
+          console.error("ログイン失敗:", res.error);
+          throw new Error("ログインに失敗しました。メールアドレスかパスワードが間違っています。");
         } else {
           router.push("/");
         }
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error: any) {
+      console.error("エラー:", error);
+      form.setError("root.serverError", { message: error.message });
     }
   });
 

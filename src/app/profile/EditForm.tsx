@@ -20,7 +20,7 @@ const EditForm = () => {
   useEffect(() => {
     if (status === "loading") return; // ローディング中は何もしない
     if (!session) {
-      router.push("/login"); // セッションが存在しない場合はログインページにリダイレクト
+      router.push("/signIn"); // セッションが存在しない場合はログインページにリダイレクト
     }
   }, [session, status, router]);
 
