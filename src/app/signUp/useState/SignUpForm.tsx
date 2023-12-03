@@ -55,7 +55,7 @@ const SignUpForm = () => {
     }
 
     // /api/registerエンドポイントにPOSTリクエストを送信する
-    const response = await fetch("/api/signup", {
+    const response = await fetch("/api/signUp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

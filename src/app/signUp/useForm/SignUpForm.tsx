@@ -21,7 +21,7 @@ const SignUpForm = () => {
 
   const onSubmit = handleSubmit(async (data: TSignUpMemberSchema) => {
     // リクエストを送信する
-    await fetch("/api/signup", {
+    await fetch("/api/signUp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

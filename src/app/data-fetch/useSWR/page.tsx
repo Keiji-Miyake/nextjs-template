@@ -1,6 +1,13 @@
 "use client";
 
+import { Metadata } from "next";
+
 import { useUser } from "@/hooks/useUser";
+
+export const metadata: Metadata = {
+  title: "データフェッチ - useSWR",
+  description: "useSWRを使ったデータフェッチのサンプルです。",
+};
 
 const DataFetchWithSwr = () => {
   const { user, isLoading, isError } = useUser(1);

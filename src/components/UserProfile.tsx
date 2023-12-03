@@ -15,10 +15,10 @@ const UserProfile = () => {
         <div>
           <p>未ログイン</p>
           <p>
-            <Link href="/signin">ログイン</Link>
+            <Link href="/signIn">ログイン</Link>
           </p>
           <p>
-            <Link href="/signup/useForm">新規登録</Link>
+            <Link href="/signUp/useForm">新規登録</Link>
           </p>
         </div>
       ) : (

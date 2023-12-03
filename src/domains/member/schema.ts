@@ -16,7 +16,7 @@ const ACCEPTED_FILE_TYPES = [
 
 export type TBaseMemberSchema = z.infer<typeof BaseMemberSchema>;
 export type TSignUpMemberSchema = z.infer<typeof SignUpMemberSchema>;
-
+export type TSignInMemberSchema = z.infer<typeof SignInMemberSchema>;
 // TSignUpMemberSchemaから、confirmPasswordを除外した型を作成する
 // https://stackoverflow.com/questions/59115406/how-to-remove-a-property-from-a-type-in-typescript
 export type TRegisterMemberSchema = Omit<
@@ -51,6 +51,11 @@ export const SignUpMemberSchema = BaseMemberSchema.pick({
     message: "パスワードが一致しません。",
     path: ["confirmPassword"],
   });
+
+export const SignInMemberSchema = BaseMemberSchema.pick({
+  email: true,
+  password: true,
+});
 
 export const ProfileEditSchema = BaseMemberSchema.pick({
   name: true,

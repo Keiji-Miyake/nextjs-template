@@ -19,12 +19,12 @@ export const authOptions: NextAuthOptions = {
     updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
-    // signIn: "/signin",
+    signIn: "/signIn",
   },
   providers: [
     Credentials({
-      id: "owner",
-      name: "Owner",
+      id: "member",
+      name: "Member",
       type: "credentials",
       credentials: {
         email: {

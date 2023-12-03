@@ -1,4 +1,11 @@
+import { Metadata } from "next";
+
 import EditForm from "./EditForm";
+
+export const metadata: Metadata = {
+  title: "プロフィール編集ページ",
+  description: "プロフィールの編集ページです。",
+};
 
 const Edit = () => {
   return (
