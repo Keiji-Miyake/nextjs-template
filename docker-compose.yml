@@ -23,3 +23,18 @@ services:
       /usr/bin/mc policy download myminio/${S3_BUCKET_NAME:-mybucket};
       exit 0;
       "
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - ${MAILHOG_PORT:-1025}:1025
+      - ${MAILHOG_CONSOLE_PORT:-8025}:8025
+  # db:
+  #   image: postgres:13.1-alpine
+  #   ports:
+  #     - ${DB_PORT:-5432}:5432
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+  #     POSTGRES_DB: ${DB_NAME:-postgres}
+  #   volumes:
+  #     - ./.postgres/data:/var/lib/postgresql/data
