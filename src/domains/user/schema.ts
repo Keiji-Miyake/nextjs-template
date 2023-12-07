@@ -14,20 +14,26 @@ const ACCEPTED_FILE_TYPES = [
   "image/webp",
 ];
 
-export type TBaseMemberSchema = z.infer<typeof BaseMemberSchema>;
-export type TSignUpMemberSchema = z.infer<typeof SignUpMemberSchema>;
-export type TSignInMemberSchema = z.infer<typeof SignInMemberSchema>;
-// TSignUpMemberSchemaから、confirmPasswordを除外した型を作成する
-// https://stackoverflow.com/questions/59115406/how-to-remove-a-property-from-a-type-in-typescript
-export type TRegisterMemberSchema = Omit<
-  TSignUpMemberSchema,
-  "confirmPassword"
+export const MEMBER_ID_LENGTH = 8;
+
+export type TBaseUserSchema = z.infer<typeof BaseUserSchema>;
+export type TSignUpUserSchema = z.infer<typeof SignUpUserSchema>;
+export type TSignInUserSchema = z.infer<typeof SignInUserSchema>;
+export type TRegisterUserSchema = Pick<
+  TBaseUserSchema,
+  "memberId" | "email" | "password"
 >;
 export type TProfileEditSchema = z.infer<typeof ProfileEditSchema>;
 export type TProfilePutSchema = z.infer<typeof ProfilePutSchema>;
 
-export const BaseMemberSchema = z.object({
+export const BaseUserSchema = z.object({
   id: z.number().int().positive(),
+  memberId: z
+    .string()
+    .length(
+      MEMBER_ID_LENGTH,
+      `会員IDは${MEMBER_ID_LENGTH}文字で入力してください。`,
+    ),
   name: z.string().min(1, "名前を入力してください。").optional(),
   email: z.string().email("メールアドレスを入力してください。"),
   password: z
@@ -38,7 +44,7 @@ export const BaseMemberSchema = z.object({
     ),
 });
 
-export const SignUpMemberSchema = BaseMemberSchema.pick({
+export const SignUpUserSchema = BaseUserSchema.pick({
   email: true,
   password: true,
 })
@@ -52,12 +58,12 @@ export const SignUpMemberSchema = BaseMemberSchema.pick({
     path: ["confirmPassword"],
   });
 
-export const SignInMemberSchema = BaseMemberSchema.pick({
+export const SignInUserSchema = BaseUserSchema.pick({
   email: true,
   password: true,
 });
 
-export const ProfileEditSchema = BaseMemberSchema.pick({
+export const ProfileEditSchema = BaseUserSchema.pick({
   name: true,
   email: true,
 }).merge(
@@ -76,7 +82,7 @@ export const ProfileEditSchema = BaseMemberSchema.pick({
   }),
 );
 
-export const ProfilePutSchema = BaseMemberSchema.pick({
+export const ProfilePutSchema = BaseUserSchema.pick({
   name: true,
   email: true,
 }).merge(

@@ -8,13 +8,13 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SignUpMemberSchema, TSignUpMemberSchema } from "@/domains/member/schema";
+import { SignUpUserSchema, TSignUpUserSchema } from "@/domains/user/schema";
 
 const SignUpForm = () => {
   // useFormを使ったリクエストを作成する
-  const form = useForm<TSignUpMemberSchema>({ mode: "onChange", resolver: zodResolver(SignUpMemberSchema) });
+  const form = useForm<TSignUpUserSchema>({ mode: "onChange", resolver: zodResolver(SignUpUserSchema) });
   const { errors, isSubmitting } = form.formState;
-  const onSubmit = form.handleSubmit(async (data: TSignUpMemberSchema) => {
+  const onSubmit = form.handleSubmit(async (data: TSignUpUserSchema) => {
     // リクエストを送信する
     await fetch("/api/signUp", {
       method: "POST",
@@ -36,7 +36,7 @@ const SignUpForm = () => {
           }
 
           //作成成功後、ログインしている状態にする
-          await signIn("member", {
+          await signIn("user", {
             email: result.email,
             password: data.password,
             // redirect: false,
@@ -48,7 +48,7 @@ const SignUpForm = () => {
         console.error("エラー:", error);
         if (error.zodErrors) {
           Object.entries(error.zodErrors).forEach(([key, value]) => {
-            form.setError(key as keyof TSignUpMemberSchema, {
+            form.setError(key as keyof TSignUpUserSchema, {
               message: value as string,
             });
           });

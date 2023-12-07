@@ -1,4 +1,4 @@
-// Member情報を取得するAPIを作成する
+// User情報を取得するAPIを作成する
 
 import { NextResponse } from "next/server";
 
@@ -11,7 +11,7 @@ export async function GET(
 ) {
   console.log("params.id:", params.id);
   try {
-    const member = await prisma.member.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: Number(params.id) },
       select: {
         id: true,
@@ -20,13 +20,13 @@ export async function GET(
         profileIcon: true,
       },
     });
-    console.log("member:", member);
+    console.log("user:", user);
 
-    if (!member) {
+    if (!user) {
       throw new Error("会員情報が見つかりませんでした。");
     }
 
-    return NextResponse.json(member);
+    return NextResponse.json(user);
   } catch (error: any) {
     console.error("会員情報取得エラー:", error);
     return errorResponse(error);

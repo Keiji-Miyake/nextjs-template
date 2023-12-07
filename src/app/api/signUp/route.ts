@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import MemberService from "@/domains/member/service";
+import UserService from "@/domains/user/service";
 import { prisma } from "@/lib/prisma";
 import { errorResponse, successResponse } from "@/utils/response";
 
@@ -21,23 +21,23 @@ export async function POST(req: NextRequest) {
   //   confirmPassword: "debug1",
   // };
 
-  const memberService = new MemberService(prisma);
+  const userService = new UserService(prisma);
 
   console.log(signUpData);
 
   try {
-    const validatedData = memberService.validateSignUpData(signUpData);
+    const validatedData = userService.validateSignUpData(signUpData);
 
-    if (await memberService.isExistingMember(validatedData.email)) {
+    if (await userService.isExistingUser(validatedData.email)) {
       console.error("Duplicate email");
       return successResponse(200, {
         existing: true,
       });
     }
 
-    const newMember = await memberService.registerMember(validatedData);
+    const newUser = await userService.registerUser(validatedData);
 
-    return NextResponse.json(newMember, { status: 201 });
+    return NextResponse.json(newUser, { status: 201 });
   } catch (error: any) {
     console.error("会員登録エラー:", error);
     return errorResponse(error);

@@ -1,5 +1,31 @@
 version: '3'
 services:
+  db:
+    build:
+      context: ./.docker/db/
+      dockerfile: Dockerfile
+    ports:
+      - ${DB_PORT:-5432}:5432
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      LANG: ${DB_LANG:-ja_JP.UTF-8}
+      TZ: ${TZ:-Asia/Tokyo}
+    volumes:
+      - ./.postgres/data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    ports:
+      - ${ADMINER_PORT:-8080}:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: ${DB_HOST:-db}
+      ADMINER_DEFAULT_USERNAME: ${DB_USER:-postgres}
+      ADMINER_DEFAULT_PASSWORD: ${DB_PASSWORD:-postgres}
+      ADMINER_DESIGN: ${ADMINER_DESIGN:-nette}
+    depends_on:
+      - db
+
   minio:
     image: minio/minio
     ports:
@@ -23,18 +49,9 @@ services:
       /usr/bin/mc policy download myminio/${S3_BUCKET_NAME:-mybucket};
       exit 0;
       "
+
   mailhog:
     image: mailhog/mailhog
     ports:
       - ${MAILHOG_PORT:-1025}:1025
       - ${MAILHOG_CONSOLE_PORT:-8025}:8025
-  # db:
-  #   image: postgres:13.1-alpine
-  #   ports:
-  #     - ${DB_PORT:-5432}:5432
-  #   environment:
-  #     POSTGRES_USER: ${DB_USER:-postgres}
-  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-  #     POSTGRES_DB: ${DB_NAME:-postgres}
-  #   volumes:
-  #     - ./.postgres/data:/var/lib/postgresql/data

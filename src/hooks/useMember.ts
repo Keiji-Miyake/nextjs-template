@@ -1,15 +1,15 @@
-import { Member } from "@prisma/client";
+import { User } from "@prisma/client";
 import useSWR from "swr";
 
 async function fetcher(key: string) {
-  return fetch(key).then((res) => res.json() as Promise<Member | null>);
+  return fetch(key).then((res) => res.json() as Promise<User | null>);
 }
 
-export const useMember = (id: number) => {
-  const { data, error } = useSWR(id ? `/api/member/${id}` : null, fetcher);
+export const useUser = (id: number) => {
+  const { data, error } = useSWR(id ? `/api/user/${id}` : null, fetcher);
 
   return {
-    member: data,
+    user: data,
     isLoading: !error && !data,
     isError: error,
   };

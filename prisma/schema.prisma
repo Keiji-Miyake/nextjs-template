@@ -6,63 +6,45 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Member {
-  id          Int        @id @default(autoincrement())
-  name        String?     @unique
-  email       String     @unique
+enum Role {
+  MEMBER
+  ADMIN
+  ROOT
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  memberId    String    @db.VarChar(8)
+  name        String?   @unique
+  email       String    @unique
   password    String
+  role        Role      @default(MEMBER)
   authToken   String?
   profileIcon String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
-  shops       Shop[]
-  employees   Employee[]
+  groups      Group[] // 多対多リレーションを追加
+  sessions    Session[]
 }
 
-model Shop {
-  id         Int            @id @default(autoincrement())
-  memberId   Int
-  shopName   String         @unique
-  shopUrl    String         @unique
-  platformId Int
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  deletedAt  DateTime?
-  member     Member         @relation(fields: [memberId], references: [id])
-  platform   Platform       @relation(fields: [platformId], references: [id])
-  employees  EmployeeShop[] // 多対多リレーションを追加
+model Session {
+  id        String   @id @default(cuid())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Platform {
-  id                       Int    @id @default(autoincrement())
-  platformName             String @unique
-  platformSpecificSettings String // 適切なデータ型に修正
-  shops                    Shop[]
-}
-
-model Employee {
-  id           Int            @id @default(autoincrement())
-  memberId     Int
-  employeeName String         @unique
-  email        String         @unique
-  password     String
-  authToken    String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  deletedAt    DateTime?
-  member       Member         @relation(fields: [memberId], references: [id])
-  shops        EmployeeShop[] // 多対多リレーションを追加
-}
-
-model EmployeeShop {
-  id         Int      @id @default(autoincrement())
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId Int
-  shop       Shop     @relation(fields: [shopId], references: [id])
-  shopId     Int
+model Group {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  users     User[] // 多対多リレーションを追加
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }

@@ -23,8 +23,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     Credentials({
-      id: "member",
-      name: "Member",
+      id: "user",
+      name: "User",
       type: "credentials",
       credentials: {
         email: {
@@ -40,23 +40,23 @@ export const authOptions: NextAuthOptions = {
         if (!credentials) {
           return null;
         }
-        const member = await prisma.member.findUnique({
+        const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (member) {
+        if (user) {
           const isValidPassword = await bcrypt.compare(
             credentials.password,
-            member.password,
+            user.password,
           );
 
           if (isValidPassword) {
             return {
-              id: member.id.toString(),
-              email: member.email,
-              password: member.password,
-              createdAt: member.createdAt,
-              updatedAt: member.updatedAt,
+              id: user.id.toString(),
+              email: user.email,
+              password: user.password,
+              createdAt: user.createdAt,
+              updatedAt: user.updatedAt,
             };
           }
         }

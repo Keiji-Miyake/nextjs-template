@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { ProfilePutSchema } from "@/domains/member/schema";
+import { ProfilePutSchema } from "@/domains/user/schema";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadImageToS3 } from "@/lib/s3";
@@ -29,7 +29,7 @@ export async function PUT(req: NextRequest) {
       console.debug("S3アップロード結果:", s3Response);
     }
     // アップロードに成功したら、データベースに保存する
-    await prisma.member.update({
+    await prisma.user.update({
       where: { id: Number(user.id) },
       data: {
         ...validatedData,

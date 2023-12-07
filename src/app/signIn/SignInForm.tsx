@@ -9,19 +9,19 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SignInMemberSchema, TSignInMemberSchema } from "@/domains/member/schema";
+import { SignInUserSchema, TSignInUserSchema } from "@/domains/user/schema";
 
 const SignInForm = () => {
   const router = useRouter();
-  const form = useForm<TSignInMemberSchema>({
+  const form = useForm<TSignInUserSchema>({
     mode: "onChange",
-    resolver: zodResolver(SignInMemberSchema),
+    resolver: zodResolver(SignInUserSchema),
   });
   const { errors, isSubmitting } = form.formState;
 
-  const onSubmit = form.handleSubmit(async (data: TSignInMemberSchema) => {
+  const onSubmit = form.handleSubmit(async (data: TSignInUserSchema) => {
     try {
-      await signIn("member", {
+      await signIn("user", {
         redirect: false,
         email: data.email,
         password: data.password,

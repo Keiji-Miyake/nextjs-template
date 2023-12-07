@@ -10,8 +10,8 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ProfileEditSchema, TProfileEditSchema } from "@/domains/member/schema";
-import { useMember } from "@/hooks/useMember";
+import { ProfileEditSchema, TProfileEditSchema } from "@/domains/user/schema";
+import { useUser } from "@/hooks/useUser";
 
 const EditForm = () => {
   const router = useRouter();
@@ -25,7 +25,7 @@ const EditForm = () => {
   }, [session, status, router]);
 
   // ログイン中（自身）のユーザーの会員情報を取得する
-  const { member, isLoading, isError } = useMember(session?.user?.id);
+  const { user, isLoading, isError } = useUser(session?.user?.id);
 
   // useFormを使ったリクエストを作成する
   const form = useForm<TProfileEditSchema>({
@@ -37,9 +37,9 @@ const EditForm = () => {
       profileIcon: undefined,
     },
     values: {
-      name: member?.name ?? "",
-      email: member?.email ?? "",
-      profileIcon: member?.profileIcon ?? undefined,
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      profileIcon: user?.profileIcon ?? undefined,
     },
   });
 
@@ -118,7 +118,7 @@ const EditForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" {...field} placeholder="member@example.com" />
+                <Input type="email" {...field} placeholder="user@example.com" />
               </FormControl>
               <FormMessage />
             </FormItem>
