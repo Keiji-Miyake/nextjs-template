@@ -2,7 +2,7 @@
 
 import { Metadata } from "next";
 
-import { useUser } from "@/hooks/useUser";
+import { useUserPlaceholder } from "@/hooks/useUserPlaceholder";
 
 export const metadata: Metadata = {
   title: "データフェッチ - useSWR",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 const DataFetchWithSwr = () => {
-  const { user, isLoading, isError } = useUser(1);
+  const { user, isLoading, isError } = useUserPlaceholder(1);
   if (isError) return <div>{isError}</div>;
   if (isLoading) return <div>Loading...</div>;
 

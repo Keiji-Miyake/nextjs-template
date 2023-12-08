@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ProfileEditSchema, TProfileEditSchema } from "@/domains/user/schema";
+import { TUserProfileEditSchema, UserProfileEditSchema } from "@/domains/user/schema";
 import { useUser } from "@/hooks/useUser";
 
 const EditForm = () => {
@@ -28,9 +28,9 @@ const EditForm = () => {
   const { user, isLoading, isError } = useUser(session?.user?.id);
 
   // useFormを使ったリクエストを作成する
-  const form = useForm<TProfileEditSchema>({
+  const form = useForm<TUserProfileEditSchema>({
     mode: "onChange",
-    resolver: zodResolver(ProfileEditSchema),
+    resolver: zodResolver(UserProfileEditSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -47,7 +47,7 @@ const EditForm = () => {
 
   const { errors, isSubmitting } = form.formState;
 
-  const onSubmit = form.handleSubmit(async (data: TProfileEditSchema) => {
+  const onSubmit = form.handleSubmit(async (data: TUserProfileEditSchema) => {
     // FormDataを作成する
     const formData = new FormData();
     // dataの各プロパティをFormDataに追加する
@@ -81,7 +81,7 @@ const EditForm = () => {
         console.error("エラー:", error);
         if (error.zodErrors) {
           Object.entries(error.zodErrors).forEach(([key, value]) => {
-            form.setError(key as keyof TProfileEditSchema, {
+            form.setError(key as keyof TUserProfileEditSchema, {
               message: value as string,
             });
           });

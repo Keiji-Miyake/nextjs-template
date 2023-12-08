@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { ProfilePutSchema } from "@/domains/user/schema";
+import { UserProfilePutSchema } from "@/domains/user/schema";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadImageToS3 } from "@/lib/s3";
@@ -21,7 +21,7 @@ export async function PUT(req: NextRequest) {
 
   try {
     // バリデーション
-    const validatedData = ProfilePutSchema.parse(data);
+    const validatedData = UserProfilePutSchema.parse(data);
 
     // profileIconがあれば、画像をアップロードして、そのURLを返す。データベースにはファイル名を保存する。
     if (validatedData.profileIcon) {

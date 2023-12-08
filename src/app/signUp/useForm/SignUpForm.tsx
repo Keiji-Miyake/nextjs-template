@@ -8,15 +8,15 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SignUpUserSchema, TSignUpUserSchema } from "@/domains/user/schema";
+import { TUserSignUpFormSchema, UserSignUpFormSchema } from "@/domains/user/schema";
 
 const SignUpForm = () => {
   // useFormを使ったリクエストを作成する
-  const form = useForm<TSignUpUserSchema>({ mode: "onChange", resolver: zodResolver(SignUpUserSchema) });
+  const form = useForm<TUserSignUpFormSchema>({ mode: "onChange", resolver: zodResolver(UserSignUpFormSchema) });
   const { errors, isSubmitting } = form.formState;
-  const onSubmit = form.handleSubmit(async (data: TSignUpUserSchema) => {
+  const onSubmit = form.handleSubmit(async (data: TUserSignUpFormSchema) => {
     // リクエストを送信する
-    await fetch("/api/signUp", {
+    await fetch("/api/sign-up", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const SignUpForm = () => {
         console.error("エラー:", error);
         if (error.zodErrors) {
           Object.entries(error.zodErrors).forEach(([key, value]) => {
-            form.setError(key as keyof TSignUpUserSchema, {
+            form.setError(key as keyof TUserSignUpFormSchema, {
               message: value as string,
             });
           });

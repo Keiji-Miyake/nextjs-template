@@ -23,8 +23,6 @@ export async function POST(req: NextRequest) {
 
   const userService = new UserService(prisma);
 
-  console.log(signUpData);
-
   try {
     const validatedData = userService.validateSignUpData(signUpData);
 
@@ -35,7 +33,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const newUser = await userService.registerUser(validatedData);
+    const newUser = await userService.signUpUser(validatedData);
 
     return NextResponse.json(newUser, { status: 201 });
   } catch (error: any) {

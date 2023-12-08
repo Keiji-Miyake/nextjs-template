@@ -1,27 +1,16 @@
+import { User } from "@prisma/client";
 import useSWR from "swr";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
 
 async function fetcher(key: string) {
   return fetch(key).then((res) => res.json() as Promise<User | null>);
 }
 
 export const useUser = (id: number) => {
-  const { data, error, isLoading } = useSWR(
-    `https://jsonplaceholder.typicode.com/users/${id}`,
-    fetcher,
-    {
-      refreshInterval: 1000,
-    },
-  );
+  const { data, error } = useSWR(id ? `/api/user/${id}` : null, fetcher);
 
   return {
     user: data,
-    isLoading,
+    isLoading: !error && !data,
     isError: error,
   };
 };

@@ -1,4 +1,4 @@
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, Role, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import UserRepository from "@/domains/user/repository";
@@ -6,9 +6,9 @@ import { generateSecureRandomString } from "@/utils/generate-secure-random-strin
 
 import {
   MEMBER_ID_LENGTH,
-  SignUpUserSchema,
-  type TRegisterUserSchema,
-  type TSignUpUserSchema,
+  TUserCreateSchema,
+  TUserSignUpSchema,
+  UserSignUpSchema,
 } from "./schema";
 
 class UserService {
@@ -17,11 +17,9 @@ class UserService {
   constructor(prisma: PrismaClient) {
     this.userRepository = new UserRepository(prisma);
   }
-  validateSignUpData(signUpData: TSignUpUserSchema) {
+  validateSignUpData(signUpData: TUserSignUpSchema) {
     try {
-      const validatedData = SignUpUserSchema.parse(signUpData);
-      // validatedDataから、confirmPasswordを除外する
-      delete validatedData.confirmPassword;
+      const validatedData = UserSignUpSchema.parse(signUpData);
       return validatedData;
     } catch (error) {
       throw error;
@@ -37,14 +35,18 @@ class UserService {
     }
   }
 
-  async registerUser(
-    registerData: TRegisterUserSchema,
-  ): Promise<User | unknown> {
+  async signUpUser(signUpData: TUserSignUpSchema): Promise<User | unknown> {
     try {
-      registerData.memberId = await this.generateMemberId();
-      registerData.password = await bcrypt.hash(registerData.password, 10);
-      const newUser = await this.userRepository.create(registerData);
-
+      const memberId = await this.generateMemberId();
+      const hashedPassword = await bcrypt.hash(signUpData.password, 10);
+      const role = Role.ROOT;
+      const createData: TUserCreateSchema = {
+        ...signUpData,
+        password: hashedPassword,
+        memberId,
+        role,
+      };
+      const newUser = await this.userRepository.create(createData);
       return newUser;
     } catch (error) {
       throw error;

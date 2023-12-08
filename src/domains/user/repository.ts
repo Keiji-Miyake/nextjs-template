@@ -1,6 +1,6 @@
 import { PrismaClient, Role, User as UserModel } from "@prisma/client";
 
-import { TRegisterUserSchema } from "./schema";
+import { TUserCreateSchema } from "./schema";
 
 class UserRepository {
   private prisma: PrismaClient;
@@ -47,7 +47,7 @@ class UserRepository {
     }
   }
 
-  async create(signUpData: TRegisterUserSchema): Promise<UserModel | unknown> {
+  async create(signUpData: TUserCreateSchema): Promise<UserModel | unknown> {
     try {
       return await this.prisma.user.create({ data: signUpData });
     } catch (error: any) {
