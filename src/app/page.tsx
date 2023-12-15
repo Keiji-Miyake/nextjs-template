@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Metadata } from "next";
 
 import { Button } from "@/components/ui/button";
-import UserProfile from "@/components/UserProfile";
+import UserProfile from "@/components/user-profile";
 
 export const metadata: Metadata = {
   title: "My Page Title",

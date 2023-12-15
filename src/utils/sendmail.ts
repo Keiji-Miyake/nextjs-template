@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer, { SentMessageInfo } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 interface EmailParams {
@@ -13,16 +13,29 @@ export async function sendEmail({
   subject,
   html,
   text,
-}: EmailParams): Promise<void> {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_SERVER,
-    port: process.env.EMAIL_PORT || 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_FROM,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  } as SMTPTransport.Options);
+}: EmailParams): Promise<SentMessageInfo> {
+  let transportOptions: SMTPTransport.Options;
+
+  if (process.env.NODE_ENV === "development") {
+    transportOptions = {
+      host: process.env.EMAIL_SERVER,
+      port: Number(process.env.EMAIL_PORT) || 1025,
+      secure: false,
+    };
+  } else {
+    transportOptions = {
+      host: process.env.EMAIL_SERVER,
+      port: Number(process.env.EMAIL_PORT) || 587,
+      auth: {
+        user: process.env.EMAIL_FROM,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    };
+  }
+
+  const transporter = nodemailer.createTransport(
+    transportOptions as SMTPTransport.Options,
+  );
 
   try {
     const email = await transporter.sendMail({
@@ -34,8 +47,9 @@ export async function sendEmail({
     });
 
     console.log("Message sent: %s", email.messageId);
+    return email;
   } catch (error) {
     console.error("メール送信エラー:", error);
-    throw new Error("メール送信エラー");
+    throw error;
   }
 }

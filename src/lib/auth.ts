@@ -1,7 +1,9 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import bcrypt from "bcrypt";
 import { getServerSession } from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
+
+import { AppError } from "@/domains/error/class/AppError";
+import MemberService from "@/domains/member/service";
 
 import { prisma } from "./prisma";
 
@@ -19,13 +21,12 @@ export const authOptions: NextAuthOptions = {
     updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
-    signIn: "/signIn",
+    signIn: "/signin",
   },
   providers: [
     Credentials({
-      id: "user",
-      name: "User",
-      type: "credentials",
+      id: "root",
+      name: "root",
       credentials: {
         email: {
           label: "Email",
@@ -38,30 +39,21 @@ export const authOptions: NextAuthOptions = {
         credentials: Record<"email" | "password", string> | undefined,
       ) {
         if (!credentials) {
-          return null;
+          throw new AppError("UNAUTHORIZED", "認証情報がありません。");
         }
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        const memberService = new MemberService();
 
-        if (user) {
-          const isValidPassword = await bcrypt.compare(
-            credentials.password,
-            user.password,
-          );
-
-          if (isValidPassword) {
-            return {
-              id: user.id.toString(),
-              email: user.email,
-              password: user.password,
-              createdAt: user.createdAt,
-              updatedAt: user.updatedAt,
-            };
-          }
+        try {
+          const user = await memberService.signIn(credentials);
+          return {
+            id: user.id,
+            memberId: user.memberId,
+            email: user.email,
+            role: user.role,
+          } as any;
+        } catch (error) {
+          throw error;
         }
-        // 認証失敗
-        return null;
       },
     }),
   ],
@@ -72,6 +64,8 @@ export const authOptions: NextAuthOptions = {
         return {
           ...token,
           id: u.id,
+          memberId: u.memberId,
+          role: u.role,
         };
       }
       return token;
@@ -82,6 +76,8 @@ export const authOptions: NextAuthOptions = {
         user: {
           ...session.user,
           id: token.id,
+          memberId: token.memberId,
+          role: token.role,
         },
       };
     },
@@ -93,6 +89,6 @@ export const getAuthSession = async () => {
   if (session) {
     return session;
   } else {
-    return new Response("Unauthorized", { status: 401 });
+    throw new AppError("UNAUTHORIZED");
   }
 };

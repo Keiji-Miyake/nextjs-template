@@ -1,32 +1,10 @@
-// response.ts
-
 import { NextResponse } from "next/server";
 
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
-import {
-  AppErrorCode,
-  AppErrorCodeToHttpStatusMap,
-} from "@/domains/error/enum";
-
-/**
- * HTTP response status codes.
- * @reference: https://developer.mozilla.org/ja/docs/Web/HTTP/Status
- */
-export const HttpStatusCode: { [key: number]: string } = {
-  200: "The request was successful",
-  400: "Bad Request",
-  401: "Unauthorized",
-  403: "Forbidden",
-  404: "Resource Not Found",
-  405: "Method Not Allowed",
-  422: "Unprocessable Entity",
-  429: "Too Many Requests",
-  500: "Internal Server Error",
-  502: "Bad Gateway",
-  503: "Service Unavailable",
-};
+import { AppError } from "@/domains/error/class/AppError";
+import { AppErrorCode, AppErrorConfig } from "@/domains/error/config";
 
 export const successResponse = <T = unknown>(
   code: number,
@@ -44,45 +22,44 @@ export const successResponse = <T = unknown>(
 export const errorResponse = <T = unknown>(
   error: T[] | T | undefined = undefined,
 ) => {
-  let errorCode = AppErrorCode.InternalServerError;
+  let errorCode: AppErrorCode;
   let errorData = {};
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     // リクエストが不正であることを示すエラー
-    errorCode = AppErrorCode.RequestError;
+    errorCode = "BAD_REQUEST";
     errorData = {
       code: error.code,
       messages: [error.message],
     };
   } else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
     // エラーコードを持たないリクエストに関連するエラーを処理
-    errorCode = AppErrorCode.RequestError;
+    errorCode = "BAD_REQUEST";
     errorData = {
       messages: [error.message],
     };
   } else if (error instanceof Prisma.PrismaClientRustPanicError) {
     // エンジンのクラッシュを処理
-    errorCode = AppErrorCode.DatabaseError;
+    errorCode = "DATABASE_ERROR";
     errorData = {
       messages: [error.message],
     };
   } else if (error instanceof Prisma.PrismaClientInitializationError) {
     // クエリエンジンの起動やデータベース接続の問題を処理
-    errorCode = AppErrorCode.DatabaseError;
+    errorCode = "DATABASE_ERROR";
     errorData = {
       messages: [error.message],
     };
   } else if (error instanceof Prisma.PrismaClientValidationError) {
     // バリデーションエラーを処理
-    errorCode = AppErrorCode.ValidationFailed;
+    errorCode = "VALIDATION_FAILED";
     errorData = {
       messages: [error.message],
     };
   } else if (error instanceof z.ZodError) {
-    errorCode = AppErrorCode.ValidationFailed;
+    errorCode = "VALIDATION_FAILED";
 
     const flatErrors = error.flatten();
-    console.error(flatErrors);
 
     // ルートエラー
     if (flatErrors.formErrors.length !== 0) {
@@ -95,7 +72,14 @@ export const errorResponse = <T = unknown>(
         zodErrors: flatErrors.fieldErrors,
       };
     }
+  } else if (error instanceof AppError) {
+    errorCode = error.code;
+    errorData = {
+      ...error,
+      messages: [error.message],
+    };
   } else {
+    errorCode = "INTERNAL_SERVER_ERROR";
     errorData = {
       messages: [
         "サーバーでエラーが発生しました。",
@@ -112,7 +96,7 @@ export const errorResponse = <T = unknown>(
       error: errorData,
     },
     {
-      status: AppErrorCodeToHttpStatusMap[errorCode],
+      status: AppErrorConfig[errorCode].status,
     },
   );
 };

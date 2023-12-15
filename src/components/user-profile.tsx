@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 
 const UserProfile = () => {
   const { data: session } = useSession();
+  console.log("session:", session);
   return (
     <div>
       <h2>
@@ -15,10 +16,10 @@ const UserProfile = () => {
         <div>
           <p>未ログイン</p>
           <p>
-            <Link href="/signIn">ログイン</Link>
+            <Link href="/signin">ログイン</Link>
           </p>
           <p>
-            <Link href="/signUp/useForm">新規登録</Link>
+            <Link href="/signup">新規登録</Link>
           </p>
         </div>
       ) : (

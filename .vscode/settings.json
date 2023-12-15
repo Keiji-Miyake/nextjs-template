@@ -3,9 +3,9 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.addMissingImports": true,
-    "source.organizeImports": true,
-    "source.fixAll.eslint": true
+    "source.addMissingImports": "explicit",
+    "source.organizeImports": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   "typescript.referencesCodeLens.enabled": true,
   "files.exclude": {
@@ -19,5 +19,7 @@
     "editor.defaultFormatter": "Prisma.prisma"
   },
   "editor.formatOnPaste": true,
-  "editor.formatOnSaveMode": "modificationsIfAvailable"
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
+  "editor.wordWrap": "on",
+  "cSpell.words": ["hookform", "signin", "signup"]
 }

@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { fromEnv } from "@aws-sdk/credential-providers";
 import path from "path";
 
@@ -31,8 +35,9 @@ export const uploadImageToS3 = async (file: File, uploadPath: string = "") => {
     // TODO: 画像をサニタイズする
   }
 
-  // アップロード時のファイル名を作成
   const fileName = `${Date.now()}-${file.name}`;
+  const absolutePath = path.join(uploadPath, fileName);
+
   // Fileオブジェクトから、Buffer に変換する
   const buffer = Buffer.from(await file.arrayBuffer());
   // S3へのアップロードに必要な情報をまとめるオブジェクト
@@ -42,21 +47,37 @@ export const uploadImageToS3 = async (file: File, uploadPath: string = "") => {
   // Body: アップロードするファイルデータを指定します。
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
-    Key: path.join(uploadPath, fileName),
+    Key: absolutePath,
     ContentType: file.type,
     Body: buffer,
   });
 
   try {
     // S3に画像をアップロードす
-    const data = await s3Client.send(command);
+    const response = await s3Client.send(command);
     // アップロード成功時の処理
-    console.debug("画像アップロード成功:", data);
+    console.debug("画像アップロード成功:", response, fileName);
     // アップロードされた画像のURLを取得
-    return data;
+    return absolutePath;
   } catch (error) {
     // アップロードエラー発生時の処理
     console.error("画像アップロードエラー:", error);
+    throw error;
+  }
+};
+
+export const deleteImageFromS3 = async (filePath: string) => {
+  const command = new DeleteObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: filePath,
+  });
+
+  try {
+    const response = await s3Client.send(command);
+    console.debug("画像削除成功:", response);
+    return response;
+  } catch (error) {
+    console.error("画像削除エラー:", error);
     throw error;
   }
 };

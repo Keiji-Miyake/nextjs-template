@@ -16,11 +16,30 @@ enum Role {
   ROOT
 }
 
+model RegistrationToken {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Member {
+  id        String    @id @db.VarChar(8)
+  email     String    @unique
+  name      String?
+  logo      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  users     User[]
+  groups    Group[]
+}
+
 model User {
   id          Int       @id @default(autoincrement())
-  memberId    String    @db.VarChar(8)
-  name        String?   @unique
-  email       String    @unique
+  name        String?
+  email       String
   password    String
   role        Role      @default(MEMBER)
   authToken   String?
@@ -28,8 +47,11 @@ model User {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
-  groups      Group[] // 多対多リレーションを追加
+  memberId    String    @db.VarChar(8)
+  member      Member    @relation(fields: [memberId], references: [id])
+  groups      Group[]
   sessions    Session[]
+  @@unique(fields: [email, memberId], name: "root_user_unique")
 }
 
 model Session {
@@ -43,8 +65,10 @@ model Session {
 model Group {
   id        Int       @id @default(autoincrement())
   name      String    @unique
-  users     User[] // 多対多リレーションを追加
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+  memberId  String    @db.VarChar(8)
+  member    Member    @relation(fields: [memberId], references: [id])
+  users     User[] // 多対多リレーションを追加
 }

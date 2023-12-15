@@ -3,8 +3,8 @@ import { NextRequest } from "next/server";
 import { UserProfilePutSchema } from "@/domains/user/schema";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { uploadImageToS3 } from "@/lib/s3";
 import { errorResponse, successResponse } from "@/utils/response";
+import { uploadImageToS3 } from "@/utils/s3";
 
 export async function PUT(req: NextRequest) {
   const session = await getAuthSession();

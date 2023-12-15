@@ -18,18 +18,13 @@ const ACCEPTED_FILE_TYPES = [
 export const MEMBER_ID_LENGTH = 8;
 
 export type TUserBaseSchema = z.infer<typeof UserBaseSchema>;
-export type TUserSignUpSchema = z.infer<typeof UserSignUpSchema>;
-export type TUserSignUpFormSchema = z.infer<typeof UserSignUpFormSchema>;
+export type TUserCreateSchema = z.infer<typeof UserCreateSchema>;
+export type TUserCreateFormSchema = z.infer<typeof UserCreateFormSchema>;
 export type TUserSignInSchema = z.infer<typeof UserSignInSchema>;
-export type TUserCreateSchema = Pick<
-  TUserBaseSchema,
-  "memberId" | "email" | "password" | "role"
->;
 export type TUserProfileEditSchema = z.infer<typeof UserProfileEditSchema>;
 export type TUserProfilePutSchema = z.infer<typeof UserProfilePutSchema>;
 
 export const UserBaseSchema = z.object({
-  id: z.number().int().positive(),
   memberId: z
     .string()
     .length(
@@ -45,14 +40,20 @@ export const UserBaseSchema = z.object({
       "英字大文字小文字・数字を含めて8文字以上で入力してください。",
     ),
   role: z.nativeEnum(Role),
+  authToken: z.string().optional(),
+  profileIcon: z.string().optional(),
 });
 
-export const UserSignUpSchema = UserBaseSchema.pick({
+export const UserCreateSchema = UserBaseSchema.pick({
+  memberId: true,
+  name: true,
   email: true,
   password: true,
+  role: true,
+  profileIcon: true,
 });
 
-export const UserSignUpFormSchema = UserSignUpSchema.merge(
+export const UserCreateFormSchema = UserCreateSchema.merge(
   z.object({
     confirmPassword: z.string().optional(),
   }),

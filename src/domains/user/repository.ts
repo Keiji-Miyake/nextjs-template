@@ -1,11 +1,13 @@
 import { PrismaClient, Role, User as UserModel } from "@prisma/client";
 
+import { prisma } from "@/lib/prisma";
+
 import { TUserCreateSchema } from "./schema";
 
 class UserRepository {
   private prisma: PrismaClient;
 
-  constructor(prisma: PrismaClient) {
+  constructor() {
     this.prisma = prisma;
   }
 
@@ -32,7 +34,7 @@ class UserRepository {
 
   async findByEmail(email: string): Promise<UserModel | null> {
     try {
-      const user = await this.prisma.user.findUnique({ where: { email } });
+      const user = await this.prisma.user.findFirst({ where: { email } });
       return user;
     } catch (error) {
       throw error;
