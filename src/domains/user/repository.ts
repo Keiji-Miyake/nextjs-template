@@ -4,11 +4,24 @@ import { prisma } from "@/lib/prisma";
 
 import { TUserCreateSchema } from "./schema";
 
+import "server-only";
+
 class UserRepository {
   private prisma: PrismaClient;
 
   constructor() {
     this.prisma = prisma;
+  }
+
+  async findByRootUser(memberId: string): Promise<UserModel | null> {
+    try {
+      const rootUser = await this.prisma.user.findFirst({
+        where: { role: Role.ROOT, memberId },
+      });
+      return rootUser;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findById(id: number): Promise<UserModel | null> {
@@ -20,13 +33,13 @@ class UserRepository {
     }
   }
 
-  async findByMemberId(memberId: string): Promise<UserModel | null> {
+  async findByMemberId(memberId: string): Promise<UserModel[] | null> {
     try {
       // rootユーザーで、memberIdを持つユーザーを検索する
-      const user = await this.prisma.user.findFirst({
-        where: { role: Role.ROOT, memberId },
+      const memberUsers = await this.prisma.user.findMany({
+        where: { memberId },
       });
-      return user;
+      return memberUsers;
     } catch (error) {
       throw error;
     }

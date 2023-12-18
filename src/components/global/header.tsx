@@ -74,6 +74,14 @@ const Header = () => {
         <div className="flex items-center gap-4">
           <NavigationMenu>
             <NavigationMenuList>
+              {session && (
+                <NavigationMenuItem>
+                  <Link href="/member/user" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>User</NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              )}
+
               <NavigationMenuItem>
                 <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
                 <NavigationMenuContent>

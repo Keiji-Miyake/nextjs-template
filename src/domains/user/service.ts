@@ -1,9 +1,11 @@
 import { User } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 import UserRepository from "@/domains/user/repository";
-import { passwordHash } from "@/utils/password-hash";
 
 import { TUserCreateSchema } from "./schema";
+
+import "server-only";
 
 class UserService {
   private userRepository: UserRepository;
@@ -22,12 +24,22 @@ class UserService {
   }
 
   async create(createData: TUserCreateSchema): Promise<User | unknown> {
-    const hashedPassword = await passwordHash(createData?.password);
+    const hashedPassword = await bcrypt.hash(createData?.password, 10);
     createData.password = hashedPassword;
 
     try {
       const newUser = await this.userRepository.create(createData);
       return newUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getMemberUsers(memberId: string): Promise<User[] | null> {
+    if (!memberId) return null;
+    try {
+      const users = await this.userRepository.findByMemberId(memberId);
+      return users;
     } catch (error) {
       throw error;
     }

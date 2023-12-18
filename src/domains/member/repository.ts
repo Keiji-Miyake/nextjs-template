@@ -5,10 +5,10 @@ import {
   Role,
   User,
 } from "@prisma/client";
+import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 
 import { prisma } from "@/lib/prisma";
-import { passwordHash } from "@/utils/password-hash";
 
 import { TMemberBaseSchema } from "./schema";
 
@@ -94,7 +94,7 @@ class MemberRepository {
   }
 
   async create(createData: TMemberBaseSchema): Promise<Member> {
-    const hashedPassword = await passwordHash(createData.password);
+    const hashedPassword = await bcrypt.hash(createData.password, 10);
     createData.password = hashedPassword;
     try {
       return await this.prisma.member.create({

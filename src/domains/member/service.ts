@@ -4,9 +4,9 @@ import bcrypt from "bcrypt";
 import { AppError } from "@/domains/error/class/AppError";
 import UserService from "@/domains/user/service";
 import dayjs from "@/lib/dayjs";
-import { generateSecureRandomString } from "@/utils/generate-secure-random-string";
-import { deleteImageFromS3, uploadImageToS3 } from "@/utils/s3";
-import { sendEmail } from "@/utils/sendmail";
+import { deleteImageFromS3, uploadImageToS3 } from "@/lib/s3";
+import { sendEmail } from "@/lib/sendmail";
+import { generateSecureRandomString } from "@/lib/utils";
 
 import MemberRepository from "./repository";
 import {

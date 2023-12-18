@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { AppError } from "@/domains/error/class/AppError";
@@ -7,11 +7,13 @@ import MemberService from "@/domains/member/service";
 
 import { prisma } from "./prisma";
 
-import type { NextAuthOptions } from "next-auth/index";
+import type {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
+import type { NextAuthOptions } from "next-auth";
 
-// NextAuth.jsの設定ファイル
-// Credentials Providerを使う
-// sessionにはdatabaseを使う
 export const authOptions: NextAuthOptions = {
   debug: true,
   adapter: PrismaAdapter(prisma),
@@ -58,6 +60,14 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      console.log("redirect", url, baseUrl);
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
     jwt: ({ token, user }) => {
       if (user) {
         const u = user as unknown as any;
@@ -82,7 +92,17 @@ export const authOptions: NextAuthOptions = {
       };
     },
   },
-};
+} satisfies NextAuthOptions;
+
+// Use it in server contexts
+export function auth(
+  ...args:
+    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  return getServerSession(...args, authOptions);
+}
 
 export const getAuthSession = async () => {
   const session = await getServerSession(authOptions);
