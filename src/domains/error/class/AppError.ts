@@ -1,15 +1,15 @@
-import { AppErrorCode, AppErrorConfig } from "../config";
+import { HttpResponseData, THttpResponseCode } from "@/config/httpResponse";
 
 export class AppError extends Error {
-  code: AppErrorCode;
+  code: THttpResponseCode;
   status: number;
   redirect: string | undefined;
 
-  constructor(code: AppErrorCode, message?: string, redirect?: string) {
-    const errorConfig = AppErrorConfig[code];
-    super(message || errorConfig.message);
-    this.redirect = redirect;
+  constructor(code: THttpResponseCode, message?: string, redirect?: string) {
+    const httpResponseData = HttpResponseData[code];
+    super(message || httpResponseData.message);
     this.code = code;
-    this.status = errorConfig.status;
+    this.status = httpResponseData.status;
+    this.redirect = redirect;
   }
 }

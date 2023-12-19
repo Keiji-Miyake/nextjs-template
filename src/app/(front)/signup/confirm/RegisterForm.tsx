@@ -1,62 +1,37 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import useSWR from "swr";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AppError } from "@/domains/error/class/AppError";
 import { MemberRegisterFormSchema, TMemberRegisterFormSchema } from "@/domains/member/schema";
 
-const fetcher = async (url: string, token: string | null) => {
-  if (!token) throw new AppError("BAD_REQUEST", "トークンがありません。");
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Auth-Token": token,
-      },
-    });
-    const payload = await response.json();
-    console.debug("会員申込情報取得:", payload);
-    if (!response.ok) {
-      throw new AppError(payload.error.code, payload.error.messages, payload.error.redirect);
-    }
-    return payload.data;
-  } catch (error) {
-    console.error("申込トークンエラー:", error);
-    throw error;
-  }
-};
-
-const RegisterForm = () => {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  const { data, error, isLoading } = useSWR(["/api/signup/verify-registration-token", token], ([url, token]) =>
-    fetcher(url, token),
-  );
+const RegisterForm = ({ email }: { email: string }) => {
   const form = useForm<TMemberRegisterFormSchema>({
     mode: "onChange",
     resolver: zodResolver(MemberRegisterFormSchema),
-    defaultValues: {},
+    defaultValues: {
+      email: email,
+      name: "",
+      logo: undefined,
+      password: "",
+      confirmPassword: "",
+    },
     values: {
-      email: data?.email,
+      email: email,
+      name: "",
+      logo: undefined,
       password: "",
       confirmPassword: "",
     },
   });
   const logoRef = form.register("logo");
   const { errors, isSubmitting } = form.formState;
-  // useFormを使ったリクエストを作成する
-  if (isLoading) return <div>Loading...</div>;
-  if (error) throw error;
 
+  // useFormのhandleSubmitを使ってフォームを送信する
   const onSubmit = form.handleSubmit(async (data: TMemberRegisterFormSchema) => {
     const formData = new FormData();
     // dataの各プロパティをFormDataに追加する
@@ -70,8 +45,9 @@ const RegisterForm = () => {
       }
       formData.append(key, value as string);
     });
-    // リクエストを送信する
+
     try {
+      // リクエストを送信する
       const response = await fetch("/api/signup", {
         method: "POST",
         body: formData,
@@ -83,14 +59,14 @@ const RegisterForm = () => {
       }
 
       //作成成功後、ログインしている状態にする
-      await signIn("user", {
-        email: payload.email,
+      await signIn("root", {
+        email: payload?.email,
         password: data.password,
         // redirect: false,
         callbackUrl: "/",
       });
     } catch (error: any) {
-      console.error("新規登録APIエラー:", error);
+      console.error("新規登録エラー:", error);
       if (error.zodErrors) {
         Object.entries(error.zodErrors).forEach(([key, value]) => {
           form.setError(key as keyof TMemberRegisterFormSchema, {
@@ -146,7 +122,7 @@ const RegisterForm = () => {
                 <FormControl>
                   <Input {...field} placeholder="会員名" />
                 </FormControl>
-                <FormDescription>This is your publid display name.</FormDescription>
+                <FormDescription>This is your public display name.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -158,7 +134,7 @@ const RegisterForm = () => {
               <FormItem>
                 <FormLabel>プロフィール画像</FormLabel>
                 <FormControl>
-                  <Input type="file" accept="image/*" {...logoRef} value={undefined} />
+                  <Input type="file" accept="image/*" {...logoRef} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -184,7 +160,7 @@ const RegisterForm = () => {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>パスワード</FormLabel>
+                <FormLabel>パスワード確認</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>

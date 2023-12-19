@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { UserProfilePutSchema } from "@/domains/user/schema";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { errorResponse, successResponse } from "@/lib/response";
+import { errorResponse, successResponse } from "@/lib/responseHandler";
 import { uploadImageToS3 } from "@/lib/s3";
 
 export async function PUT(req: NextRequest) {

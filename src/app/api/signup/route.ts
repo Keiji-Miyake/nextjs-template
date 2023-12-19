@@ -4,7 +4,7 @@ import { HttpResponseData } from "@/config/httpResponse";
 import { AppError } from "@/domains/error/class/AppError";
 import { MemberRegisterPostSchema } from "@/domains/member/schema";
 import MemberService from "@/domains/member/service";
-import { errorResponse, successResponse } from "@/lib/response";
+import { errorResponse, successResponse } from "@/lib/responseHandler";
 
 export async function POST(req: NextRequest) {
   if (req.method !== "POST") {

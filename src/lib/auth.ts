@@ -41,7 +41,7 @@ export const authOptions: NextAuthOptions = {
         credentials: Record<"email" | "password", string> | undefined,
       ) {
         if (!credentials) {
-          throw new AppError("UNAUTHORIZED", "認証情報がありません。");
+          return null;
         }
         const memberService = new MemberService();
 
@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
           } as any;
         } catch (error) {
-          throw error;
+          return null;
         }
       },
     }),

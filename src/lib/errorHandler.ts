@@ -1,29 +1,20 @@
-import { NextResponse } from "next/server";
-
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
+import { THttpResponseCode } from "@/config/httpResponse";
 import { AppError } from "@/domains/error/class/AppError";
-import { AppErrorCode, AppErrorConfig } from "@/domains/error/config";
 
-export const successResponse = <T = unknown>(
-  code: number,
-  data: T[] | T | undefined = undefined,
-) => {
-  return NextResponse.json(
-    {
-      success: true,
-      data: data,
-    },
-    { status: code },
-  );
-};
-
-export const errorResponse = <T = unknown>(
-  error: T[] | T | undefined = undefined,
-) => {
-  let errorCode: AppErrorCode;
-  let errorData = {};
+export default function handleErrors(error: unknown) {
+  let errorCode: THttpResponseCode;
+  let errorData: {
+    code?: string;
+    messages: string[];
+    zodErrors?: {
+      [x: string]: string[] | undefined;
+      [x: number]: string[] | undefined;
+      [x: symbol]: string[] | undefined;
+    };
+  };
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     // リクエストが不正であることを示すエラー
@@ -89,14 +80,5 @@ export const errorResponse = <T = unknown>(
     };
   }
 
-  return NextResponse.json(
-    {
-      success: false,
-      code: errorCode,
-      error: errorData,
-    },
-    {
-      status: AppErrorConfig[errorCode].status,
-    },
-  );
-};
+  return { errorCode, errorData };
+}
