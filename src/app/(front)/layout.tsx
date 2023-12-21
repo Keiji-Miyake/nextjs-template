@@ -5,6 +5,7 @@ import React from "react";
 
 import Header from "@/components/global/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/config/site";
 import NextAuthProvider from "@/providers/NextAuth";
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Header />
               <div className="container flex h-full py-6">
                 <main className="flex-1">{children}</main>
+                <Toaster />
               </div>
               <footer className="top-0 w-full border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="container flex h-14 items-center">footer</div>
