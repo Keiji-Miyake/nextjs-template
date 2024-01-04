@@ -25,6 +25,11 @@ class MemberService {
     this.userService = new UserService();
   }
 
+  /**
+   * 会員登録済みかどうか
+   * @param email
+   * @returns Promise<boolean>
+   */
   async isExisting(email: string): Promise<boolean> {
     try {
       const existingMember = await this.memberRepository.findByEmail(email);
@@ -34,6 +39,12 @@ class MemberService {
     }
   }
 
+  /**
+   * ルートユーザーが既に存在するかどうか
+   * @param memberId
+   * @param email
+   * @returns Promise<boolean>
+   */
   async isExistingRootUser(memberId: string, email: string): Promise<boolean> {
     try {
       const existingUser = await this.memberRepository.findRootUser(
@@ -46,6 +57,11 @@ class MemberService {
     }
   }
 
+  /**
+   * 会員登録メールを送信
+   * @param email
+   * @returns Promise<any>
+   */
   async sendRegistrationEmail(email: string): Promise<any> {
     try {
       // 会員登録Tokenを保存
@@ -81,6 +97,10 @@ URLの有効期限は${expireAtText}です。
     }
   }
 
+  /**
+   * 会員番号を生成
+   * @returns Promise<string>
+   */
   async generateMemberId(): Promise<string> {
     try {
       const memberId = await generateSecureRandomString(MEMBER_ID_LENGTH);
@@ -95,6 +115,11 @@ URLの有効期限は${expireAtText}です。
     }
   }
 
+  /**
+   * 会員登録Tokenを取得
+   * @param token
+   * @returns Promise<RegistrationToken>
+   */
   async getValidRegistrationToken(token: string): Promise<RegistrationToken> {
     try {
       const registrationToken =
@@ -115,6 +140,13 @@ URLの有効期限は${expireAtText}です。
       throw error;
     }
   }
+
+  /**
+   * 会員登録
+   * @param params
+   * @returns Promise<Member>
+   * @throws AppError
+   */
   async register(params: TMemberRegisterFormSchema): Promise<Member> {
     const memberId = await this.generateMemberId();
     const logoUploadPath = `${memberId}/logo`;
@@ -133,6 +165,9 @@ URLの有効期限は${expireAtText}です。
       };
       const newMember: Member = await this.memberRepository.create(createData);
 
+      // RegistrationTokenを削除
+      await this.memberRepository.deleteRegistrationToken(params.email);
+
       return newMember;
     } catch (error) {
       if (logoAbsolutePath) {
@@ -143,6 +178,12 @@ URLの有効期限は${expireAtText}です。
     }
   }
 
+  /**
+   * サインイン
+   * @param credentials
+   * @returns Promise<Member>
+   * @throws AppError
+   */
   async signIn(credentials: Record<"email" | "password", string>) {
     try {
       // 1. バリデーション

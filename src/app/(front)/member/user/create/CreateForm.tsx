@@ -3,39 +3,34 @@
 import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
+import { Role } from "@prisma/client";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MemberRegisterFormSchema, TMemberRegisterFormSchema } from "@/domains/member/schema";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { TUserCreateFormSchema, UserCreateFormSchema } from "@/domains/user/schema";
+import { ROLE_NAME } from "@/domains/user/type";
 
-const RegisterForm = ({ email }: { email: string }) => {
+const CreateForm = () => {
   const router = useRouter();
-  const form = useForm<TMemberRegisterFormSchema>({
+  const form = useForm<TUserCreateFormSchema>({
     mode: "onChange",
-    resolver: zodResolver(MemberRegisterFormSchema),
+    resolver: zodResolver(UserCreateFormSchema),
     defaultValues: {
-      email: email,
       name: "",
-      logo: undefined,
+      email: "",
       password: "",
       confirmPassword: "",
-    },
-    values: {
-      email: email,
-      name: "",
-      logo: undefined,
-      password: "",
-      confirmPassword: "",
+      role: Role.MEMBER,
+      profileIcon: undefined,
     },
   });
-  const logoRef = form.register("logo");
+  const profileIconRef = form.register("profileIcon");
   const { errors, isSubmitting } = form.formState;
 
-  // useFormのhandleSubmitを使ってフォームを送信する
-  const onSubmit = form.handleSubmit(async (data: TMemberRegisterFormSchema) => {
+  const onSubmit = async (data: TUserCreateFormSchema) => {
     const formData = new FormData();
     // dataの各プロパティをFormDataに追加する
     Object.entries(data).forEach(([key, value]) => {
@@ -51,35 +46,21 @@ const RegisterForm = ({ email }: { email: string }) => {
 
     try {
       // リクエストを送信する
-      const response = await fetch("/api/signup", {
+      const response = await fetch("/api/user/create", {
         method: "POST",
         body: formData,
       });
       const payload = await response.json();
-      console.debug("会員登録APIレスポンス:", payload);
       if (!response.ok) {
         throw payload.error;
       }
 
-      //作成成功後、ログインしている状態にする
-      const signInResponse = await signIn("root", {
-        email: payload?.email,
-        password: data.password,
-        redirect: false,
-        callbackUrl: "/",
-      });
-
-      if (signInResponse?.error) {
-        console.error("ログイン失敗:", signInResponse.error);
-        router.push("/signin");
-      }
-      console.log("ログイン成功:", signInResponse);
-      router.push("/");
+      router.push("/member/user/");
     } catch (error: any) {
-      console.error("新規登録エラー:", error);
+      console.error("ユーザー登録エラー:", error);
       if (error.zodErrors) {
         Object.entries(error.zodErrors).forEach(([key, value]) => {
-          form.setError(key as keyof TMemberRegisterFormSchema, {
+          form.setError(key as keyof TUserCreateFormSchema, {
             message: value as string,
           });
         });
@@ -87,12 +68,11 @@ const RegisterForm = ({ email }: { email: string }) => {
 
       form.setError("root.serverError", { message: error.messages });
     }
-  });
+  };
 
-  // useFormを使ったフォームを作成
   return (
     <Form {...form}>
-      <form className="mt-8 space-y-6" onSubmit={onSubmit}>
+      <form className="mt-8 space-y-6" onSubmit={form.handleSubmit((data) => onSubmit(data))}>
         <div>
           {errors.root?.serverError && (
             <div className="mt-2 text-sm text-red-600" id="server-error">
@@ -104,20 +84,14 @@ const RegisterForm = ({ email }: { email: string }) => {
         <div className="rounded-md shadow-sm -space-y-px">
           <FormField
             control={form.control}
-            name="email"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>メールアドレス</FormLabel>
+                <FormLabel>名前</FormLabel>
                 <FormControl>
-                  <Input
-                    className="cursor-pointer focus-visible:ring-transparent"
-                    readOnly
-                    type="email"
-                    {...field}
-                    placeholder="user@example.com"
-                  />
+                  <Input {...field} placeholder="ユーザー名" />
                 </FormControl>
-                <FormDescription></FormDescription>
+                <FormDescription>表示される名前です。</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -125,31 +99,19 @@ const RegisterForm = ({ email }: { email: string }) => {
 
           <FormField
             control={form.control}
-            name="name"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>名前</FormLabel>
+                <FormLabel>メールアドレス</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="会員名" />
+                  <Input type="email" {...field} placeholder="user@example.com" />
                 </FormControl>
-                <FormDescription>This is your public display name.</FormDescription>
+                <FormDescription></FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="logo"
-            render={({}) => (
-              <FormItem>
-                <FormLabel>プロフィール画像</FormLabel>
-                <FormControl>
-                  <Input type="file" accept="image/*" {...logoRef} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
           <FormField
             control={form.control}
             name="password"
@@ -179,6 +141,49 @@ const RegisterForm = ({ email }: { email: string }) => {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>権限</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    {Object.entries(ROLE_NAME).map(([value, name], index) => {
+                      return (
+                        <FormItem key={index} className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value={value} />
+                          </FormControl>
+                          <FormLabel className="font-normal">{name}</FormLabel>
+                        </FormItem>
+                      );
+                    })}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="profileIcon"
+            render={({}) => (
+              <FormItem>
+                <FormLabel>プロフィール画像</FormLabel>
+                <FormControl>
+                  <Input type="file" accept="image/*" {...profileIconRef} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div>
@@ -191,4 +196,4 @@ const RegisterForm = ({ email }: { email: string }) => {
   );
 };
 
-export default RegisterForm;
+export default CreateForm;

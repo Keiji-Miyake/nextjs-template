@@ -19,6 +19,12 @@ class MemberRepository {
     this.prisma = prisma;
   }
 
+  /**
+   * 会員をIDで検索
+   * @param id
+   * @returns Promise<Member | null>
+   * @throws Error
+   */
   async findById(id: string): Promise<Member | null> {
     try {
       return await this.prisma.member.findUnique({ where: { id } });
@@ -27,6 +33,12 @@ class MemberRepository {
     }
   }
 
+  /**
+   * 会員をメールアドレスで検索
+   * @param email
+   * @returns Promise<Member | null>
+   * @throws Error
+   */
   async findByEmail(email: string): Promise<Member | null> {
     try {
       return await this.prisma.member.findUnique({
@@ -37,6 +49,12 @@ class MemberRepository {
     }
   }
 
+  /**
+   * 会員登録Tokenを検索
+   * @param token
+   * @returns Promise<RegistrationToken | null>
+   * @throws Error
+   */
   async findRegistrationToken(
     token: string,
   ): Promise<RegistrationToken | null> {
@@ -49,6 +67,13 @@ class MemberRepository {
     }
   }
 
+  /**
+   * ルートユーザーを検索
+   * @param email
+   * @param memberId
+   * @returns Promise<User | null>
+   * @throws Error
+   */
   async findRootUser(email: string, memberId?: string): Promise<User | null> {
     try {
       const rootUser = await this.prisma.user.findFirst({
@@ -64,6 +89,12 @@ class MemberRepository {
     }
   }
 
+  /**
+   * 会員登録Tokenを作成
+   * @param email
+   * @returns Promise<RegistrationToken>
+   * @throws Error
+   */
   async createRegistrationToken(email: string): Promise<RegistrationToken> {
     try {
       // トークンを生成
@@ -88,6 +119,23 @@ class MemberRepository {
       });
       console.log("registerTokenData:", registrationToken);
       return registrationToken;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 会員登録Tokenを削除
+   * @param email
+   */
+  async deleteRegistrationToken(email: string): Promise<RegistrationToken> {
+    try {
+      // 会員登録Tokenを削除
+      const deletedToken = await this.prisma.registrationToken.delete({
+        where: { email },
+      });
+      console.log("deletedToken:", deletedToken);
+      return deletedToken;
     } catch (error) {
       throw error;
     }

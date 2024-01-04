@@ -2,19 +2,11 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { THttpResponseCode } from "@/config/httpResponse";
-import { AppError } from "@/domains/error/class/AppError";
+import { TErrorData } from "@/domains/error/type";
 
 export default function handleErrors(error: unknown) {
   let errorCode: THttpResponseCode;
-  let errorData: {
-    code?: string;
-    messages: string[];
-    zodErrors?: {
-      [x: string]: string[] | undefined;
-      [x: number]: string[] | undefined;
-      [x: symbol]: string[] | undefined;
-    };
-  };
+  let errorData: TErrorData;
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     // リクエストが不正であることを示すエラー
@@ -63,12 +55,6 @@ export default function handleErrors(error: unknown) {
         zodErrors: flatErrors.fieldErrors,
       };
     }
-  } else if (error instanceof AppError) {
-    errorCode = error.code;
-    errorData = {
-      ...error,
-      messages: [error.message],
-    };
   } else {
     errorCode = "INTERNAL_SERVER_ERROR";
     errorData = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -13,6 +13,8 @@ import { AppError } from "@/domains/error/class/AppError";
 import { TUserSignInSchema, UserSignInSchema } from "@/domains/user/schema";
 
 const SignInForm = () => {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const router = useRouter();
   const form = useForm<TUserSignInSchema>({
     mode: "onChange",
@@ -28,6 +30,7 @@ const SignInForm = () => {
     try {
       const response = await signIn("root", {
         redirect: false,
+        callbackUrl: callbackUrl || "/",
         email: data.email,
         password: data.password,
       });
@@ -36,7 +39,7 @@ const SignInForm = () => {
         throw new AppError("UNAUTHORIZED", "ログインに失敗しました。メールアドレスかパスワードが間違っています。");
       }
       console.log("ログイン成功:", response);
-      router.push("/");
+      router.push(callbackUrl || "/");
     } catch (error: any) {
       console.error("ログインエラー:", error);
       form.setError("root.serverError", { message: error.message });

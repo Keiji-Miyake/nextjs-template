@@ -18,20 +18,16 @@ const ACCEPTED_FILE_TYPES = [
 export const MEMBER_ID_LENGTH = 8;
 
 export type TUserBaseSchema = z.infer<typeof UserBaseSchema>;
-export type TUserCreateSchema = z.infer<typeof UserCreateSchema>;
 export type TUserCreateFormSchema = z.infer<typeof UserCreateFormSchema>;
+export type TUserCreatePostSchema = z.infer<typeof UserCreatePostSchema>;
+export type TUserCreateSchema = z.infer<typeof UserCreateSchema>;
 export type TUserSignInSchema = z.infer<typeof UserSignInSchema>;
 export type TUserProfileEditSchema = z.infer<typeof UserProfileEditSchema>;
 export type TUserProfilePutSchema = z.infer<typeof UserProfilePutSchema>;
 
 export const UserBaseSchema = z.object({
-  memberId: z
-    .string()
-    .length(
-      MEMBER_ID_LENGTH,
-      `会員IDは${MEMBER_ID_LENGTH}文字で入力してください。`,
-    ),
-  name: z.string().min(1, "名前を入力してください。").optional(),
+  memberId: z.string().length(MEMBER_ID_LENGTH, "不正な値です。"),
+  name: z.string().nullish(),
   email: z.string().email("メールアドレスを入力してください。"),
   password: z
     .string()
@@ -40,27 +36,74 @@ export const UserBaseSchema = z.object({
       "英字大文字小文字・数字を含めて8文字以上で入力してください。",
     ),
   role: z.nativeEnum(Role),
-  authToken: z.string().optional(),
-  profileIcon: z.string().optional(),
+  authToken: z.string().nullish(),
+  profileIcon: z.string().nullish(),
 });
 
-export const UserCreateSchema = UserBaseSchema.pick({
-  memberId: true,
-  name: true,
+export const UserCreateFormSchema = UserBaseSchema.pick({
   email: true,
   password: true,
   role: true,
-  profileIcon: true,
-});
+})
+  .merge(
+    z.object({
+      name: z.string().optional(),
+      confirmPassword: z.string().optional(),
+      profileIcon: z
+        .custom<FileList>()
+        .transform((file) => file[0])
+        .refine((file) => file === undefined || file?.size <= MAX_SIZE, {
+          message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
+        })
+        .refine(
+          (file) =>
+            file === undefined || ACCEPTED_FILE_TYPES.includes(file?.type),
+          {
+            message:
+              "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
+          },
+        )
+        .optional(),
+    }),
+  )
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "パスワードが一致しません。",
+    path: ["confirmPassword"],
+  });
 
-export const UserCreateFormSchema = UserCreateSchema.merge(
-  z.object({
-    confirmPassword: z.string().optional(),
-  }),
-).refine((data) => data.password === data.confirmPassword, {
-  message: "パスワードが一致しません。",
-  path: ["confirmPassword"],
-});
+export const UserCreatePostSchema = UserBaseSchema.pick({
+  memberId: true,
+  email: true,
+  password: true,
+  role: true,
+})
+  .merge(
+    z.object({
+      name: z.string().optional(),
+      confirmPassword: z.string().optional(),
+      profileIcon: z
+        .custom<File>()
+        .refine((file) => typeof file === "string" || file?.size <= MAX_SIZE, {
+          message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
+        })
+        .refine(
+          (file) =>
+            typeof file === "string" ||
+            ACCEPTED_FILE_TYPES.includes(file?.type),
+          {
+            message:
+              "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
+          },
+        )
+        .optional(),
+    }),
+  )
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "パスワードが一致しません。",
+    path: ["confirmPassword"],
+  });
+
+export const UserCreateSchema = UserBaseSchema;
 
 export const UserSignInSchema = UserBaseSchema.pick({
   email: true,
@@ -75,14 +118,17 @@ export const UserProfileEditSchema = UserBaseSchema.pick({
     profileIcon: z
       .custom<FileList>()
       .transform((file) => file[0])
-      .refine((file) => file?.size <= MAX_SIZE, {
+      .refine((file) => file === undefined || file?.size <= MAX_SIZE, {
         message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
       })
-      .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type), {
-        message:
-          "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-      })
-      .optional(),
+      .refine(
+        (file) =>
+          file === undefined || ACCEPTED_FILE_TYPES.includes(file?.type),
+        {
+          message:
+            "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
+        },
+      ),
   }),
 );
 
@@ -90,13 +136,16 @@ export const UserProfilePutSchema = UserProfileEditSchema.merge(
   z.object({
     profileIcon: z
       .custom<File>()
-      .refine((file) => file?.size <= MAX_SIZE, {
+      .refine((file) => typeof file === "string" || file?.size <= MAX_SIZE, {
         message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
       })
-      .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type), {
-        message:
-          "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-      })
-      .optional(),
+      .refine(
+        (file) =>
+          typeof file === "string" || ACCEPTED_FILE_TYPES.includes(file?.type),
+        {
+          message:
+            "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
+        },
+      ),
   }),
 );

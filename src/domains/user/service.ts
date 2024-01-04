@@ -1,12 +1,13 @@
 import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
-
-import UserRepository from "@/domains/user/repository";
-
-import { TUserCreateSchema } from "./schema";
-
 import "server-only";
 
+import { AppError } from "@/domains/error/class/AppError";
+import UserRepository from "@/domains/user/repository";
+import { prisma } from "@/lib/prisma";
+import { deleteImageFromS3, uploadImageToS3 } from "@/lib/s3";
+
+import { UserCreatePostSchema } from "./schema";
 class UserService {
   private userRepository: UserRepository;
 
@@ -23,14 +24,56 @@ class UserService {
     }
   }
 
-  async create(createData: TUserCreateSchema): Promise<User | unknown> {
-    const hashedPassword = await bcrypt.hash(createData?.password, 10);
-    createData.password = hashedPassword;
-
+  /**
+   *
+   * @param data
+   * @returns
+   */
+  async create(data: {
+    [k: string]: FormDataEntryValue;
+  }): Promise<User | null> {
+    let profileIconPath = "";
+    console.debug("ユーザー作成開始:", data);
     try {
-      const newUser = await this.userRepository.create(createData);
+      // バリデーション
+      const { profileIcon, ...validatedData } =
+        UserCreatePostSchema.parse(data);
+      delete validatedData.confirmPassword;
+
+      // 会員内のユーザーで同じemailが存在しないか確認する
+      const user = await prisma.user.findUnique({
+        where: {
+          UniqueMemberEmail: {
+            email: validatedData.email,
+            memberId: validatedData.memberId,
+          },
+        },
+      });
+      if (user) {
+        throw new AppError(
+          "CONFLICT",
+          "既に登録済みです。ログインしてご利用いただけます。",
+        );
+      }
+
+      // プロフィール画像をアップロードする。失敗しても処理は続行する
+      const fileUploadPath = `${data.memberId}/user/${data.email}`;
+      if (profileIcon) {
+        profileIconPath = await uploadImageToS3(profileIcon, fileUploadPath);
+      }
+      const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+      const userData = {
+        ...validatedData,
+        password: hashedPassword,
+        profileIcon: profileIconPath,
+      };
+
+      const newUser = await this.userRepository.save(userData);
       return newUser;
     } catch (error) {
+      if (profileIconPath) {
+        await deleteImageFromS3(profileIconPath);
+      }
       throw error;
     }
   }

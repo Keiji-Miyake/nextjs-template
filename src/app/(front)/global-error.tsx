@@ -15,22 +15,18 @@ export default function Error({ error, reset }: { error: AppError & { digest?: s
 
   return (
     <div>
-      <h2 className="text-2xl">{error.code}</h2>
-      <p>{error.message}</p>
-      {error.redirect ? (
-        <Button asChild>
-          <Link href={error.redirect}>戻る</Link>
-        </Button>
-      ) : (
-        <Button
-          onClick={
-            // Attempt to recover by trying to re-render the segment
-            () => reset()
-          }
-        >
-          やり直す
-        </Button>
-      )}
+      <h2 className="text-2xl">{error.message}</h2>
+      <Button
+        onClick={
+          // Attempt to recover by trying to re-render the segment
+          () => reset()
+        }
+      >
+        やり直す
+      </Button>
+      <Button asChild>
+        <Link href="/">HOMEに戻る</Link>
+      </Button>
     </div>
   );
 }

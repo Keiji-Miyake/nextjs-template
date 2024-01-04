@@ -70,7 +70,7 @@ const SignUpForm = () => {
               <FormItem>
                 <FormLabel>メールアドレス</FormLabel>
                 <FormControl>
-                  <Input type="email" {...field} placeholder="user@example.com" />
+                  <Input type="email" {...field} placeholder="member@example.com" />
                 </FormControl>
                 <FormDescription></FormDescription>
                 <FormMessage />

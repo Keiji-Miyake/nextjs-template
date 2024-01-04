@@ -58,5 +58,3 @@ export const AppErrorConfig = {
     status: 500,
   },
 };
-
-export type AppErrorCode = keyof typeof AppErrorConfig;

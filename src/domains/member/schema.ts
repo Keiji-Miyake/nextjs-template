@@ -61,11 +61,16 @@ export const MemberRegisterFormSchema = MemberBaseSchema.pick({
       logo: z
         .custom<FileList>()
         .transform((file) => file[0])
-        .refine((file) => file?.size <= LOGO_CONFIG.MAX_SIZE, {
-          message: `ファイルサイズは${LOGO_CONFIG.MAX_MB}MB以下にしてください。`,
-        })
         .refine(
-          (file) => LOGO_CONFIG.ACCEPTED_FILE_TYPES.includes(file?.type),
+          (file) => file === undefined || file?.size <= LOGO_CONFIG.MAX_SIZE,
+          {
+            message: `ファイルサイズは${LOGO_CONFIG.MAX_MB}MB以下にしてください。`,
+          },
+        )
+        .refine(
+          (file) =>
+            file === undefined ||
+            LOGO_CONFIG.ACCEPTED_FILE_TYPES.includes(file?.type),
           {
             message:
               "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
@@ -89,11 +94,17 @@ export const MemberRegisterPostSchema = MemberBaseSchema.pick({
     z.object({
       logo: z
         .custom<File>()
-        .refine((file) => file?.size <= LOGO_CONFIG.MAX_SIZE, {
-          message: `ファイルサイズは${LOGO_CONFIG.MAX_MB}MB以下にしてください。`,
-        })
         .refine(
-          (file) => LOGO_CONFIG.ACCEPTED_FILE_TYPES.includes(file?.type),
+          (file) =>
+            typeof file === "string" || file?.size <= LOGO_CONFIG.MAX_SIZE,
+          {
+            message: `ファイルサイズは${LOGO_CONFIG.MAX_MB}MB以下にしてください。`,
+          },
+        )
+        .refine(
+          (file) =>
+            typeof file === "string" ||
+            LOGO_CONFIG.ACCEPTED_FILE_TYPES.includes(file?.type),
           {
             message:
               "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",

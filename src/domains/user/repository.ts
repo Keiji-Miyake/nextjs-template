@@ -2,9 +2,8 @@ import { PrismaClient, Role, User as UserModel } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
-import { TUserCreateSchema } from "./schema";
-
 import "server-only";
+import { TUserCreateSchema } from "./schema";
 
 class UserRepository {
   private prisma: PrismaClient;
@@ -54,18 +53,10 @@ class UserRepository {
     }
   }
 
-  async save(user: UserModel): Promise<UserModel> {
+  async save(user: TUserCreateSchema): Promise<UserModel> {
     try {
       return await this.prisma.user.create({ data: user });
     } catch (error) {
-      throw error;
-    }
-  }
-
-  async create(signUpData: TUserCreateSchema): Promise<UserModel | unknown> {
-    try {
-      return await this.prisma.user.create({ data: signUpData });
-    } catch (error: any) {
       throw error;
     }
   }

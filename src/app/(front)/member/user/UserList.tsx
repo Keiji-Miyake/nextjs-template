@@ -1,6 +1,7 @@
 "use client";
 
 import { User } from "@prisma/client";
+import dayjs from "dayjs";
 
 import {
   Table,
@@ -39,9 +40,15 @@ const UserList = ({ users }: { users: User[] }) => {
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.role}</TableCell>
             <TableCell>{user.profileIcon}</TableCell>
-            <TableCell>{user.createdAt.toString()}</TableCell>
-            <TableCell>{user.updatedAt.toString()}</TableCell>
-            <TableCell>{user.deletedAt?.toString()}</TableCell>
+            <TableCell suppressHydrationWarning={true}>
+              {dayjs(user.createdAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+            </TableCell>
+            <TableCell suppressHydrationWarning={true}>
+              {dayjs(user.updatedAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+            </TableCell>
+            <TableCell suppressHydrationWarning={true}>
+              {dayjs(user.deletedAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
