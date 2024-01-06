@@ -22,3 +22,12 @@ export const generateSecureRandomString = async (
     });
   });
 };
+
+/**
+ * FormDataをobjectに変換
+ * @param formData
+ * @returns object
+ * @throws Error
+ */
+export const formDataToObject = (formData: FormData): Record<string, unknown> =>
+  Object.fromEntries(formData.entries());

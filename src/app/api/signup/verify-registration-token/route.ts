@@ -5,16 +5,13 @@ import MemberService from "@/domains/member/service";
 import { errorResponse, successResponse } from "@/lib/responseHandler";
 
 export async function GET(req: NextRequest) {
-  // Tokenを取得する
   const token = req.headers.get("x-auth-token");
-  if (!token) {
-    console.error("Tokenがありません。");
-    const error = new AppError("BAD_REQUEST", "Tokenがありません。", "/signup");
-    return errorResponse(error);
-  }
-
   const memberService = new MemberService();
+
   try {
+    if (!token) {
+      throw new AppError("BAD_REQUEST", "Tokenがありません。", "/signup");
+    }
     const registrationToken =
       await memberService.getValidRegistrationToken(token);
 

@@ -5,6 +5,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ## Getting Started
 
 ```sh
+docker-compose up -d
+pnpm dev:db:push
+pnpm prisma:generate
 pnpm install
 ```
 
@@ -15,6 +18,13 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 環境の削除
+
+```sh
+docker-compose down --rmi all -v
+sudo rm -rf ./docker-volumes
+```
 
 ## Linter
 

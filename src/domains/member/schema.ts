@@ -19,9 +19,11 @@ export const MEMBER_ID_LENGTH = 8;
 
 export type TMemberBaseSchema = z.infer<typeof MemberBaseSchema>;
 export type TMemberSignUpSchema = z.infer<typeof MemberSignUpSchema>;
-export type TMemberSignInSchema = z.infer<typeof MemberSignInSchema>;
 export type TMemberRegisterFormSchema = z.infer<
   typeof MemberRegisterFormSchema
+>;
+export type TMemberRegisterPostSchema = z.infer<
+  typeof MemberRegisterPostSchema
 >;
 
 export const MemberBaseSchema = z.object({
@@ -44,11 +46,6 @@ export const MemberBaseSchema = z.object({
 
 export const MemberSignUpSchema = MemberBaseSchema.pick({
   email: true,
-});
-
-export const MemberSignInSchema = MemberBaseSchema.pick({
-  email: true,
-  password: true,
 });
 
 export const MemberRegisterFormSchema = MemberBaseSchema.pick({

@@ -54,6 +54,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
           } as any;
         } catch (error) {
+          console.error("サインインエラー:", error);
           return null;
         }
       },

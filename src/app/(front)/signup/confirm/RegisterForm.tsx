@@ -39,6 +39,7 @@ const RegisterForm = ({ email }: { email: string }) => {
     const formData = new FormData();
     // dataの各プロパティをFormDataに追加する
     Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined) return;
       // もしvalueがFileListだったら、各FileをFormDataに追加する
       if (value instanceof FileList) {
         for (let i = 0; i < value.length; i++) {
@@ -46,7 +47,7 @@ const RegisterForm = ({ email }: { email: string }) => {
         }
         return;
       }
-      formData.append(key, value as string);
+      formData.append(key, value);
     });
 
     try {
@@ -55,28 +56,26 @@ const RegisterForm = ({ email }: { email: string }) => {
         method: "POST",
         body: formData,
       });
+
       const payload = await response.json();
-      console.debug("会員登録APIレスポンス:", payload);
       if (!response.ok) {
         throw payload.error;
       }
 
       //作成成功後、ログインしている状態にする
       const signInResponse = await signIn("root", {
-        email: payload?.email,
+        email: payload?.data.email,
         password: data.password,
         redirect: false,
-        callbackUrl: "/",
       });
+      console.debug("signInResponse", signInResponse);
 
       if (signInResponse?.error) {
-        console.error("ログイン失敗:", signInResponse.error);
         router.push("/signin");
       }
-      console.log("ログイン成功:", signInResponse);
+
       router.push("/");
     } catch (error: any) {
-      console.error("新規登録エラー:", error);
       if (error.zodErrors) {
         Object.entries(error.zodErrors).forEach(([key, value]) => {
           form.setError(key as keyof TMemberRegisterFormSchema, {

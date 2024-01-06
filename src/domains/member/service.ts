@@ -1,8 +1,7 @@
-import { Member, RegistrationToken } from "@prisma/client";
+import { Member, Prisma, RegistrationToken } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import { AppError } from "@/domains/error/class/AppError";
-import UserService from "@/domains/user/service";
 import dayjs from "@/lib/dayjs";
 import { deleteImageFromS3, uploadImageToS3 } from "@/lib/s3";
 import { sendEmail } from "@/lib/sendmail";
@@ -11,18 +10,15 @@ import { generateSecureRandomString } from "@/lib/utils";
 import MemberRepository from "./repository";
 import {
   MEMBER_ID_LENGTH,
-  MemberSignInSchema,
-  TMemberBaseSchema,
-  TMemberRegisterFormSchema,
+  MemberRegisterPostSchema,
+  TMemberRegisterPostSchema,
 } from "./schema";
 
 class MemberService {
   private memberRepository: MemberRepository;
-  private userService: UserService;
 
   constructor() {
     this.memberRepository = new MemberRepository();
-    this.userService = new UserService();
   }
 
   /**
@@ -79,8 +75,7 @@ ${process.env.NEXT_PUBLIC_WEB_URL}/signup/confirm?token=${registrationToken?.tok
 URLの有効期限は${expireAtText}です。
 `;
       const html = `
-<p>新規登録ありがとうございます。</p>
-<p>次のリンクをクリックして登録にお進みください。</p>
+<p>新規登録ありがとうございます。<br>次のリンクをクリックして登録にお進みください。</p>
 <p><a href="${process.env.NEXT_PUBLIC_WEB_URL}/signup/confirm?token=${registrationToken?.token}">会員登録</a></p>
 <p>URLの有効期限は${expireAtText}です。</p>
 `;
@@ -147,26 +142,45 @@ URLの有効期限は${expireAtText}です。
    * @returns Promise<Member>
    * @throws AppError
    */
-  async register(params: TMemberRegisterFormSchema): Promise<Member> {
+  async register(params: TMemberRegisterPostSchema): Promise<Member> {
     const memberId = await this.generateMemberId();
     const logoUploadPath = `${memberId}/logo`;
-    let logoAbsolutePath: string = "";
+    let logoAbsolutePath: string | undefined;
     try {
-      // logoがあれば、画像をアップロードして、そのURLを返す。データベースにはファイル名を保存する。
-      if (params.logo) {
-        logoAbsolutePath = await uploadImageToS3(params.logo, logoUploadPath);
+      const validatedData = MemberRegisterPostSchema.parse(params);
+
+      // メールアドレスが既に登録済みでないか
+      if (await this.isExisting(validatedData.email)) {
+        console.error("登録済みのメールアドレス:", validatedData.email);
+        throw new AppError(
+          "CONFLICT",
+          "既に登録済みです。ログインしてご利用いただけます。",
+          "/login",
+        );
       }
 
-      // 会員登録
-      const createData: TMemberBaseSchema = {
-        ...params,
+      const createData: Prisma.MemberCreateInput = {
+        ...validatedData,
         id: memberId,
-        logo: logoAbsolutePath,
+        logo: "",
       };
-      const newMember: Member = await this.memberRepository.create(createData);
+
+      // logoがあれば、画像をアップロードして、そのURLを返す。データベースにはファイル名を保存する。
+      if (validatedData.logo) {
+        createData.logo = await uploadImageToS3(
+          validatedData.logo,
+          logoUploadPath,
+        );
+        logoAbsolutePath = createData.logo;
+      }
+
+      const newMember: Member = await this.memberRepository.create(
+        createData,
+        validatedData.password,
+      );
 
       // RegistrationTokenを削除
-      await this.memberRepository.deleteRegistrationToken(params.email);
+      await this.memberRepository.deleteRegistrationToken(createData.email);
 
       return newMember;
     } catch (error) {
@@ -185,12 +199,11 @@ URLの有効期限は${expireAtText}です。
    * @throws AppError
    */
   async signIn(credentials: Record<"email" | "password", string>) {
+    console.debug("credentials:", credentials);
     try {
-      // 1. バリデーション
-      const validationData = MemberSignInSchema.parse(credentials);
-      // 2. ルートユーザーが存在するか
+      // 1. ルートユーザーが存在するか
       const rootUser = await this.memberRepository.findRootUser(
-        validationData.email,
+        credentials.email,
       );
       // 3. もし存在しなかったら
       if (!rootUser) {
@@ -199,7 +212,7 @@ URLの有効期限は${expireAtText}です。
 
       // 4. パスワードが正しいか
       const isValidPassword = await bcrypt.compare(
-        validationData.password,
+        credentials.password,
         rootUser.password,
       );
 

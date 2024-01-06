@@ -1,7 +1,5 @@
 import { Metadata } from "next";
 
-import { AppError } from "@/domains/error/class/AppError";
-
 import { getRegistrationToken } from "./actions";
 import RegisterForm from "./RegisterForm";
 
@@ -21,9 +19,6 @@ const signUp = async ({ searchParams }: { searchParams: { token: string } }) => 
       </div>
     );
   } catch (error) {
-    if (error instanceof Error) {
-      throw new AppError("INTERNAL_SERVER_ERROR", error.message);
-    }
     throw error;
   }
 };

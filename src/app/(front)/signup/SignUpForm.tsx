@@ -32,12 +32,11 @@ const SignUpForm = () => {
       const payload = await response.json();
 
       if (!response.ok) {
-        throw new AppError(payload.code, payload.error.messages);
+        throw new AppError(payload.code, payload.error.message);
       }
 
       return router.push("/signup/email-sent");
     } catch (error: any) {
-      console.error("新規申込エラー:", error);
       if (error.zodErrors) {
         Object.entries(error.zodErrors).forEach(([key, value]) => {
           form.setError(key as keyof TMemberSignUpSchema, {

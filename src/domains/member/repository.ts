@@ -1,5 +1,6 @@
 import {
   Member,
+  Prisma,
   PrismaClient,
   RegistrationToken,
   Role,
@@ -9,8 +10,6 @@ import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 
 import { prisma } from "@/lib/prisma";
-
-import { TMemberBaseSchema } from "./schema";
 
 class MemberRepository {
   private prisma: PrismaClient;
@@ -141,9 +140,11 @@ class MemberRepository {
     }
   }
 
-  async create(createData: TMemberBaseSchema): Promise<Member> {
-    const hashedPassword = await bcrypt.hash(createData.password, 10);
-    createData.password = hashedPassword;
+  async create(
+    createData: Prisma.MemberCreateInput,
+    password: string,
+  ): Promise<Member> {
+    const hashedPassword = await bcrypt.hash(password, 10);
     try {
       return await this.prisma.member.create({
         data: {
@@ -155,7 +156,7 @@ class MemberRepository {
             create: {
               name: createData.name,
               email: createData.email,
-              password: createData.password,
+              password: hashedPassword,
               role: Role.ROOT,
               profileIcon: createData.logo,
             },

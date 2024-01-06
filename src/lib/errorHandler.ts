@@ -2,67 +2,78 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { THttpResponseCode } from "@/config/httpResponse";
+import { AppError } from "@/domains/error/class/AppError";
 import { TErrorData } from "@/domains/error/type";
 
 export default function handleErrors(error: unknown) {
   let errorCode: THttpResponseCode;
   let errorData: TErrorData;
 
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  if (error instanceof AppError) {
+    errorCode = error.code;
+    errorData = {
+      message: error.message,
+      error,
+      redirect: error.redirect,
+    };
+  } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
     // リクエストが不正であることを示すエラー
     errorCode = "BAD_REQUEST";
     errorData = {
       code: error.code,
-      messages: [error.message],
+      message: "不正なリクエストです。",
+      error,
     };
   } else if (error instanceof Prisma.PrismaClientUnknownRequestError) {
     // エラーコードを持たないリクエストに関連するエラーを処理
     errorCode = "BAD_REQUEST";
     errorData = {
-      messages: [error.message],
+      message: "不正なリクエストです。",
+      error,
     };
   } else if (error instanceof Prisma.PrismaClientRustPanicError) {
     // エンジンのクラッシュを処理
     errorCode = "DATABASE_ERROR";
     errorData = {
-      messages: [error.message],
+      message: "データベースでエラーが発生しました。",
+      error,
     };
   } else if (error instanceof Prisma.PrismaClientInitializationError) {
     // クエリエンジンの起動やデータベース接続の問題を処理
     errorCode = "DATABASE_ERROR";
     errorData = {
-      messages: [error.message],
+      message: "データベースでエラーが発生しました。",
+      error,
     };
   } else if (error instanceof Prisma.PrismaClientValidationError) {
     // バリデーションエラーを処理
     errorCode = "VALIDATION_FAILED";
     errorData = {
-      messages: [error.message],
+      message: "入力内容に誤りがあります。",
+      error,
     };
   } else if (error instanceof z.ZodError) {
     errorCode = "VALIDATION_FAILED";
-
     const flatErrors = error.flatten();
 
     // ルートエラー
     if (flatErrors.formErrors.length !== 0) {
       errorData = {
-        messages: flatErrors.formErrors,
+        message: "入力内容に誤りがあります。",
+        error,
       };
     } else {
       errorData = {
-        messages: ["入力内容に誤りがあります。", "入力をやり直してください。"],
+        message: "入力内容に誤りがあります。",
+        error,
         zodErrors: flatErrors.fieldErrors,
       };
     }
   } else {
     errorCode = "INTERNAL_SERVER_ERROR";
     errorData = {
-      messages: [
-        "サーバーでエラーが発生しました。",
-        "時間をおいて再度お試しください。",
-        `エラー: ${error}`,
-      ],
+      message: "予期せぬエラーが発生しました。",
+      error,
     };
   }
 

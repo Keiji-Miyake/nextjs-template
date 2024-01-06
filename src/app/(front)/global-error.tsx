@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { AppError } from "@/domains/error/class/AppError";
 
-export default function Error({ error, reset }: { error: AppError & { digest?: string }; reset: () => void }) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error("エラーページ：", error);

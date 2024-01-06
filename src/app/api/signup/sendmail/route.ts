@@ -6,15 +6,13 @@ import MemberService from "@/domains/member/service";
 import { errorResponse } from "@/lib/responseHandler";
 
 export async function POST(req: NextRequest) {
-  if (req.method !== "POST") {
-    console.error("無効なメソッドです。");
-    throw new AppError("METHOD_NOT_ALLOWED");
-  }
-
   const memberService = new MemberService();
   const signUpData = await req.json();
 
   try {
+    if (req.method !== "POST") {
+      throw new AppError("METHOD_NOT_ALLOWED");
+    }
     const validatedData = MemberSignUpSchema.parse(signUpData);
     // 登録済みのメールアドレスかどうかを確認する
     if (await memberService.isExisting(validatedData.email)) {
@@ -31,7 +29,7 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json(sendMail, { status: 201 });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("会員申込APIエラー:", error);
     return errorResponse(error);
   }

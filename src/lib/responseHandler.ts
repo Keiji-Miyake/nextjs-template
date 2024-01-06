@@ -17,9 +17,7 @@ export const successResponse = <T = unknown>(
   );
 };
 
-export const errorResponse = <T = unknown>(
-  error: T[] | T | undefined = undefined,
-) => {
+export const errorResponse = (error: unknown) => {
   const { errorCode, errorData } = handleErrors(error);
 
   return NextResponse.json(
