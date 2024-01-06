@@ -87,6 +87,33 @@ class UserService {
       throw error;
     }
   }
+
+  /**
+   * ページネーションを考慮したユーザー一覧取得
+   * @param memberId
+   * @param page
+   * @param perPage
+   * @returns
+   * @throws
+   */
+  async getUsersWithPagination(
+    memberId: string,
+    page: number,
+    perPage: number,
+  ): Promise<User[] | null> {
+    if (!memberId) return null;
+    try {
+      const users = await this.userRepository.findByMemberIdWithPagination(
+        memberId,
+        page,
+        perPage,
+      );
+      return users;
+    } catch (error) {
+      console.error("ユーザー一覧取得失敗", error);
+      throw error;
+    }
+  }
 }
 
 export default UserService;

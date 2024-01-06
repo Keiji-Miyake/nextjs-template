@@ -53,6 +53,31 @@ class UserRepository {
     }
   }
 
+  /**
+   * メンバー内のユーザーをページネーションで取得する
+   * @param memberId
+   * @param page
+   * @param perPage
+   * @returns
+   */
+  async findByMemberIdWithPagination(
+    memberId: string,
+    page: number,
+    perPage: number,
+  ): Promise<UserModel[] | null> {
+    const skip = page > 0 ? (page - 1) * perPage : 0;
+    try {
+      const users = await this.prisma.user.findMany({
+        where: { memberId },
+        skip: skip,
+        take: perPage,
+      });
+      return users;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async save(user: TUserCreateSchema): Promise<UserModel> {
     try {
       return await this.prisma.user.create({ data: user });
