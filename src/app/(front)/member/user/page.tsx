@@ -21,8 +21,8 @@ const users = async () => {
     throw new AppError("UNAUTHORIZED", "ログインが必要です。", "/login");
   }
   const memberId = session?.user.memberId;
-  const currentPage = Number(searchParams?.page) || 0;
-  const users = await userService.getUsersWithPagination(memberId, currentPage, 2);
+  const currentPage = Number(searchParams?.page) || 1;
+  const users = await userService.fetchUsersWithPagination(memberId, currentPage, 10);
 
   return (
     <div className="container">

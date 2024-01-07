@@ -34,6 +34,7 @@ const CreateForm = () => {
     const formData = new FormData();
     // dataの各プロパティをFormDataに追加する
     Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined) return;
       // もしvalueがFileListだったら、各FileをFormDataに追加する
       if (value instanceof FileList) {
         for (let i = 0; i < value.length; i++) {
@@ -66,7 +67,7 @@ const CreateForm = () => {
         });
       }
 
-      form.setError("root.serverError", { message: error.messages });
+      form.setError("root.serverError", { message: error.message });
     }
   };
 

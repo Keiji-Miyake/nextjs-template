@@ -51,7 +51,7 @@ model User {
   member      Member    @relation(fields: [memberId], references: [id])
   groups      Group[]
   sessions    Session[]
-  @@unique(fields: [email, memberId], name: "UniqueMemberEmail")
+  @@unique(fields: [email, memberId], name: "UniqueMemberUser")
 }
 
 model Session {

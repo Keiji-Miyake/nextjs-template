@@ -1,13 +1,13 @@
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import "server-only";
 
 import { AppError } from "@/domains/error/class/AppError";
 import UserRepository from "@/domains/user/repository";
-import { prisma } from "@/lib/prisma";
 import { deleteImageFromS3, uploadImageToS3 } from "@/lib/s3";
 
 import { UserCreatePostSchema } from "./schema";
+
 class UserService {
   private userRepository: UserRepository;
 
@@ -15,9 +15,12 @@ class UserService {
     this.userRepository = new UserRepository();
   }
 
-  async isExistingUser(email: string): Promise<boolean> {
+  async isExistingUser(email: string, memberId: string): Promise<boolean> {
     try {
-      const existingUser = await this.userRepository.findByEmail(email);
+      const existingUser = await this.userRepository.findUnique(
+        email,
+        memberId,
+      );
       return existingUser ? true : false;
     } catch (error) {
       throw error;
@@ -25,13 +28,17 @@ class UserService {
   }
 
   /**
-   *
+   * ユーザー作成
    * @param data
    * @returns
    */
-  async create(data: {
-    [k: string]: FormDataEntryValue;
-  }): Promise<User | null> {
+  async create(
+    memberId: string,
+    data: {
+      [k: string]: FormDataEntryValue;
+    },
+  ): Promise<User | null> {
+    const fileUploadPath = `${memberId}/user/${data.email}`;
     let profileIconPath = "";
     console.debug("ユーザー作成開始:", data);
     try {
@@ -41,14 +48,10 @@ class UserService {
       delete validatedData.confirmPassword;
 
       // 会員内のユーザーで同じemailが存在しないか確認する
-      const user = await prisma.user.findUnique({
-        where: {
-          UniqueMemberEmail: {
-            email: validatedData.email,
-            memberId: validatedData.memberId,
-          },
-        },
-      });
+      const user = await this.userRepository.findUnique(
+        validatedData.email,
+        memberId,
+      );
       if (user) {
         throw new AppError(
           "CONFLICT",
@@ -56,19 +59,27 @@ class UserService {
         );
       }
 
-      // プロフィール画像をアップロードする。失敗しても処理は続行する
-      const fileUploadPath = `${data.memberId}/user/${data.email}`;
-      if (profileIcon) {
-        profileIconPath = await uploadImageToS3(profileIcon, fileUploadPath);
-      }
-      const hashedPassword = await bcrypt.hash(validatedData.password, 10);
-      const userData = {
+      // userDataを作成する
+      const userData: Prisma.UserCreateInput = {
         ...validatedData,
-        password: hashedPassword,
-        profileIcon: profileIconPath,
+        password: await bcrypt.hash(validatedData.password, 10),
+        member: {
+          connect: {
+            id: memberId,
+          },
+        },
       };
 
-      const newUser = await this.userRepository.save(userData);
+      // プロフィール画像をアップロードする。失敗しても処理は続行する
+      if (profileIcon) {
+        userData.profileIcon = await uploadImageToS3(
+          profileIcon,
+          fileUploadPath,
+        );
+        profileIconPath = userData.profileIcon;
+      }
+
+      const newUser = await this.userRepository.create(userData);
       return newUser;
     } catch (error) {
       if (profileIconPath) {
@@ -78,7 +89,7 @@ class UserService {
     }
   }
 
-  async getMemberUsers(memberId: string): Promise<User[] | null> {
+  async fetchUsers(memberId: string): Promise<User[] | null> {
     if (!memberId) return null;
     try {
       const users = await this.userRepository.findByMemberId(memberId);
@@ -96,7 +107,7 @@ class UserService {
    * @returns
    * @throws
    */
-  async getUsersWithPagination(
+  async fetchUsersWithPagination(
     memberId: string,
     page: number,
     perPage: number,

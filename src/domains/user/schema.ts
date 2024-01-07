@@ -20,7 +20,6 @@ export const MEMBER_ID_LENGTH = 8;
 export type TUserBaseSchema = z.infer<typeof UserBaseSchema>;
 export type TUserCreateFormSchema = z.infer<typeof UserCreateFormSchema>;
 export type TUserCreatePostSchema = z.infer<typeof UserCreatePostSchema>;
-export type TUserCreateSchema = z.infer<typeof UserCreateSchema>;
 export type TUserSignInSchema = z.infer<typeof UserSignInSchema>;
 export type TUserProfileEditSchema = z.infer<typeof UserProfileEditSchema>;
 export type TUserProfilePutSchema = z.infer<typeof UserProfilePutSchema>;
@@ -72,7 +71,6 @@ export const UserCreateFormSchema = UserBaseSchema.pick({
   });
 
 export const UserCreatePostSchema = UserBaseSchema.pick({
-  memberId: true,
   email: true,
   password: true,
   role: true,
@@ -102,8 +100,6 @@ export const UserCreatePostSchema = UserBaseSchema.pick({
     message: "パスワードが一致しません。",
     path: ["confirmPassword"],
   });
-
-export const UserCreateSchema = UserBaseSchema;
 
 export const UserSignInSchema = UserBaseSchema.pick({
   email: true,

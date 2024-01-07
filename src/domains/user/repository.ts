@@ -1,9 +1,8 @@
-import { PrismaClient, Role, User as UserModel } from "@prisma/client";
+import { Prisma, PrismaClient, Role, User as UserModel } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
 import "server-only";
-import { TUserCreateSchema } from "./schema";
 
 class UserRepository {
   private prisma: PrismaClient;
@@ -32,6 +31,9 @@ class UserRepository {
     }
   }
 
+  /**
+   * メンバー内のユニークユーザーを取得
+   */
   async findByMemberId(memberId: string): Promise<UserModel[] | null> {
     try {
       // rootユーザーで、memberIdを持つユーザーを検索する
@@ -44,9 +46,16 @@ class UserRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<UserModel | null> {
+  async findUnique(email: string, memberId: string): Promise<UserModel | null> {
     try {
-      const user = await this.prisma.user.findFirst({ where: { email } });
+      const user = await this.prisma.user.findUnique({
+        where: {
+          UniqueMemberUser: {
+            email: email,
+            memberId: memberId,
+          },
+        },
+      });
       return user;
     } catch (error) {
       throw error;
@@ -78,7 +87,7 @@ class UserRepository {
     }
   }
 
-  async save(user: TUserCreateSchema): Promise<UserModel> {
+  async create(user: Prisma.UserCreateInput): Promise<UserModel> {
     try {
       return await this.prisma.user.create({ data: user });
     } catch (error) {

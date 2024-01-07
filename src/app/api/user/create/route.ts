@@ -17,13 +17,13 @@ export async function POST(req: NextRequest) {
   if (!session) {
     throw new AppError("UNAUTHORIZED");
   }
+  const memberId = session?.user.memberId;
 
   const formData = await req.formData();
   const payload = Object.fromEntries(formData);
-  payload["memberId"] = session?.user.memberId;
 
   try {
-    const createdUser = await userService.create(payload);
+    const createdUser = await userService.create(memberId, payload);
     if (createdUser === null) {
       throw new AppError(
         "INTERNAL_SERVER_ERROR",
