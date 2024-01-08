@@ -104,24 +104,23 @@ class UserService {
    * @param memberId
    * @param page
    * @param perPage
-   * @returns
+   * @returns users, totalCount
    * @throws
    */
-  async fetchUsersWithPagination(
+  async fetchUsersPage(
     memberId: string,
     page: number,
     perPage: number,
-  ): Promise<User[] | null> {
-    if (!memberId) return null;
+  ): Promise<{ users: User[] | null; totalCount: number }> {
     try {
       const users = await this.userRepository.findByMemberIdWithPagination(
         memberId,
         page,
         perPage,
       );
-      return users;
+      const totalCount = await this.userRepository.countByMemberId(memberId);
+      return { users, totalCount };
     } catch (error) {
-      console.error("ユーザー一覧取得失敗", error);
       throw error;
     }
   }

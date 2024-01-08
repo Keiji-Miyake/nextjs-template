@@ -16,3 +16,5 @@ export const siteConfig = {
     docs: "https://ui.shadcn.com",
   },
 };
+
+export const USERS_PER_PAGE = 10;

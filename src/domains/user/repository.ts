@@ -63,11 +63,12 @@ class UserRepository {
   }
 
   /**
-   * メンバー内のユーザーをページネーションで取得する
+   * member内のユーザーをページネーションで取得。
    * @param memberId
    * @param page
    * @param perPage
-   * @returns
+   * @returns users, totalCount
+   * @throws PrismaClientKnownRequestError
    */
   async findByMemberIdWithPagination(
     memberId: string,
@@ -87,6 +88,26 @@ class UserRepository {
     }
   }
 
+  /**
+   * メンバー内のユニークユーザー数を取得
+   * @param memberId
+   * @returns count
+   * @throws PrismaClientKnownRequestError
+   */
+  async countByMemberId(memberId: string): Promise<number> {
+    try {
+      const count = await this.prisma.user.count({ where: { memberId } });
+      return count;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * ユーザー作成
+   * @param user
+   * @returns
+   */
   async create(user: Prisma.UserCreateInput): Promise<UserModel> {
     try {
       return await this.prisma.user.create({ data: user });
