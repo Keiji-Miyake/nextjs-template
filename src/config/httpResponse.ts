@@ -1,4 +1,9 @@
-export const HttpResponseData = {
+export type HttpResponse = {
+  message: string;
+  status: number;
+};
+
+export const HttpResponseData: { [key: string]: HttpResponse } = {
   OK: {
     message: "OK",
     status: 200,
