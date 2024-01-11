@@ -3,7 +3,7 @@ export type HttpResponse = {
   status: number;
 };
 
-export const HttpResponseData: { [key: string]: HttpResponse } = {
+export const HttpResponseData = {
   OK: {
     message: "OK",
     status: 200,
@@ -52,6 +52,6 @@ export const HttpResponseData: { [key: string]: HttpResponse } = {
     message: "データベースエラー",
     status: 500,
   },
-};
+} as const;
 
 export type THttpResponseCode = keyof typeof HttpResponseData;
