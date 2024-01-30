@@ -29,10 +29,10 @@ const SignUpForm = () => {
         },
         body: JSON.stringify(data),
       });
-      const payload = await response.json();
+      const json = await response.json();
 
       if (!response.ok) {
-        throw new AppError(payload.code, payload.error.message);
+        throw new AppError(json.code, json.error.message);
       }
 
       return router.push("/signup/email-sent");

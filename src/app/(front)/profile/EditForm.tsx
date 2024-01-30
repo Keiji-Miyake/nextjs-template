@@ -3,43 +3,25 @@
 import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { AppError } from "@/domains/error/class/AppError";
 import { TUserProfileEditSchema, UserProfileEditSchema } from "@/domains/user/schema";
-import { useUser } from "@/hooks/useUser";
+import { UserProfile } from "@/domains/user/type";
 
-const EditForm = () => {
+const EditForm = ({ profile }: { profile: UserProfile }) => {
   const router = useRouter();
-  // セッションデータの取得
-  const { data: session, status } = useSession();
-  useEffect(() => {
-    if (status === "loading") return; // ローディング中は何もしない
-    if (!session) {
-      router.push("/signIn"); // セッションが存在しない場合はログインページにリダイレクト
-    }
-  }, [session, status, router]);
 
-  // ログイン中（自身）のユーザーの会員情報を取得する
-  const { user, isLoading, isError } = useUser(session?.user?.id);
-
-  // useFormを使ったリクエストを作成する
   const form = useForm<TUserProfileEditSchema>({
     mode: "onChange",
     resolver: zodResolver(UserProfileEditSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      profileIcon: undefined,
-    },
-    values: {
-      name: user?.name ?? "",
-      email: user?.email ?? "",
-      profileIcon: user?.profileIcon ?? undefined,
+      name: profile.name || "",
+      email: profile.email || "",
+      profileIcon: profile.profileIcon || undefined,
     },
   });
 
@@ -62,37 +44,32 @@ const EditForm = () => {
       formData.append(key, value as string);
     });
 
-    // リクエストを送信する
-    await fetch("/api/profile/edit", {
-      method: "PUT",
-      body: formData,
-    })
-      .then(async (res) => {
-        const result = await res.json();
-        console.debug(result);
-
-        if (!res.ok) {
-          throw result.error;
-        } else {
-          router.push("/");
-        }
-      })
-      .catch((error) => {
-        console.error("エラー:", error);
-        if (error.zodErrors) {
-          Object.entries(error.zodErrors).forEach(([key, value]) => {
-            form.setError(key as keyof TUserProfileEditSchema, {
-              message: value as string,
-            });
-          });
-        }
-
-        form.setError("root.serverError", { message: error.messages });
+    try {
+      const response = await fetch("/api/profile/edit", {
+        method: "PUT",
+        body: formData,
       });
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new AppError(json.code, json.error.message);
+      }
+
+      return router.push("/profile");
+    } catch (error: any) {
+      console.error("エラー:", error);
+      if (error.zodErrors) {
+        Object.entries(error.zodErrors).forEach(([key, value]) => {
+          form.setError(key as keyof TUserProfileEditSchema, {
+            message: value as string,
+          });
+        });
+      }
+
+      form.setError("root.serverError", { message: error.messages });
+    }
   });
 
-  if (isError) return <div>{isError}</div>;
-  if (isLoading) return <div>Loading...</div>;
   return (
     <Form {...form}>
       <form onSubmit={onSubmit}>
@@ -104,7 +81,7 @@ const EditForm = () => {
             <FormItem>
               <FormLabel>名前</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="会員名" />
+                <Input {...field} value={field.value || ""} placeholder="ユーザー名" />
               </FormControl>
               <FormDescription>This is your publid display name.</FormDescription>
               <FormMessage />

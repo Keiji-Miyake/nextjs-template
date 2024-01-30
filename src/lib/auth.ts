@@ -76,7 +76,9 @@ export const authOptions: NextAuthOptions = {
           ...token,
           id: u.id,
           memberId: u.memberId,
+          email: u.email,
           role: u.role,
+          expires: u.expires,
         };
       }
       return token;
@@ -88,6 +90,7 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.id,
           memberId: token.memberId,
+          email: token.email,
           role: token.role,
         },
       };
