@@ -66,7 +66,7 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
         });
       }
 
-      form.setError("root.serverError", { message: error.messages });
+      form.setError("root.serverError", { message: error.message });
     }
   });
 
