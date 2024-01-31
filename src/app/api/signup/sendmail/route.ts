@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AppError } from "@/domains/error/class/AppError";
 import { MemberSignUpSchema } from "@/domains/member/schema";
 import MemberService from "@/domains/member/service";
-import { errorResponse } from "@/lib/responseHandler";
+import { errorResponse } from "@/libs/responseHandler";
 
 export async function POST(req: NextRequest) {
   const memberService = new MemberService();

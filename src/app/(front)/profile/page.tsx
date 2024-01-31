@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 import { AppError } from "@/domains/error/class/AppError";
-import { auth } from "@/lib/auth";
-import { getProfile } from "@/lib/utils";
+import { auth } from "@/libs/auth";
+import { getProfile } from "@/libs/utils";
 
 import EditForm from "./EditForm";
 

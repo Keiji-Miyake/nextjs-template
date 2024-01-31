@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient, Role, User as UserModel } from "@prisma/client";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/libs/prisma";
 
 import "server-only";
 

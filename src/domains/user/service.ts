@@ -4,7 +4,7 @@ import "server-only";
 
 import { AppError } from "@/domains/error/class/AppError";
 import UserRepository from "@/domains/user/repository";
-import { deleteImageFromS3, uploadImageToS3 } from "@/lib/s3";
+import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
 
 import { UserCreatePostSchema } from "./schema";
 

@@ -1,6 +1,6 @@
 import { Employee, Shop as ShopModel } from "@prisma/client";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/libs/prisma";
 
 class ShopService {
   constructor() {}

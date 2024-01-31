@@ -9,7 +9,7 @@ import {
 import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/libs/prisma";
 
 class MemberRepository {
   private prisma: PrismaClient;

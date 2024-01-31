@@ -4,8 +4,8 @@ import { HttpResponseData } from "@/config/httpResponse";
 import { AppError } from "@/domains/error/class/AppError";
 import { TMemberRegisterFormSchema } from "@/domains/member/schema";
 import MemberService from "@/domains/member/service";
-import { errorResponse, successResponse } from "@/lib/responseHandler";
-import { formDataToObject } from "@/lib/utils";
+import { errorResponse, successResponse } from "@/libs/responseHandler";
+import { formDataToObject } from "@/libs/utils";
 
 export async function POST(req: NextRequest) {
   const memberService = new MemberService();

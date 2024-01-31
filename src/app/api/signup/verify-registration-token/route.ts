@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { AppError } from "@/domains/error/class/AppError";
 import MemberService from "@/domains/member/service";
-import { errorResponse, successResponse } from "@/lib/responseHandler";
+import { errorResponse, successResponse } from "@/libs/responseHandler";
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get("x-auth-token");

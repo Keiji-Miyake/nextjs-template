@@ -3,8 +3,8 @@ import { NextRequest } from "next/server";
 import { HttpResponseData } from "@/config/httpResponse";
 import { AppError } from "@/domains/error/class/AppError";
 import UserService from "@/domains/user/service";
-import { auth } from "@/lib/auth";
-import { errorResponse, successResponse } from "@/lib/responseHandler";
+import { auth } from "@/libs/auth";
+import { errorResponse, successResponse } from "@/libs/responseHandler";
 
 export async function POST(req: NextRequest) {
   if (req.method !== "POST") {

@@ -26,7 +26,7 @@ import {
 import { USERS_PER_PAGE } from "@/config/site";
 import { AppError } from "@/domains/error/class/AppError";
 import UserService from "@/domains/user/service";
-import { auth } from "@/lib/auth";
+import { auth } from "@/libs/auth";
 
 export const metadata: Metadata = {
   title: "ユーザー一覧ページ",

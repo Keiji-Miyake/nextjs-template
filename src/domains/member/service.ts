@@ -2,10 +2,10 @@ import { Member, Prisma, RegistrationToken } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import { AppError } from "@/domains/error/class/AppError";
-import dayjs from "@/lib/dayjs";
-import { deleteImageFromS3, uploadImageToS3 } from "@/lib/s3";
-import { sendEmail } from "@/lib/sendmail";
-import { generateSecureRandomString } from "@/lib/utils";
+import dayjs from "@/libs/dayjs";
+import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
+import { sendEmail } from "@/libs/sendmail";
+import { generateSecureRandomString } from "@/libs/utils";
 
 import MemberRepository from "./repository";
 import {

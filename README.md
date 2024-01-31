@@ -6,9 +6,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ```sh
 docker-compose up -d
+pnpm install
 pnpm dev:db:push
 pnpm prisma:generate
-pnpm install
 ```
 
 First, run the development server:

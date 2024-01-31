@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 
 import { UserProfilePutSchema } from "@/domains/user/schema";
-import { getAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { errorResponse, successResponse } from "@/lib/responseHandler";
-import { uploadImageToS3 } from "@/lib/s3";
+import { getAuthSession } from "@/libs/auth";
+import { prisma } from "@/libs/prisma";
+import { errorResponse, successResponse } from "@/libs/responseHandler";
+import { uploadImageToS3 } from "@/libs/s3";
 
 export async function PUT(req: NextRequest) {
   const session = await getAuthSession();

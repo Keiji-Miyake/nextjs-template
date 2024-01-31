@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 import { Button } from "@/components/ui/button";
 import UserProfile from "@/components/user-profile";
-import { auth } from "@/lib/auth";
+import { auth } from "@/libs/auth";
 
 export const metadata: Metadata = {
   title: "My Page Title",

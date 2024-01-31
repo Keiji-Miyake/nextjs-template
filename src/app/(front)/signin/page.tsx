@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 import { AppError } from "@/domains/error/class/AppError";
-import { auth } from "@/lib/auth";
+import { auth } from "@/libs/auth";
 
 import SignInForm from "./SignInForm";
 
