@@ -37,9 +37,9 @@ export const uploadImageToS3 = async (file: File, uploadPath: string = "") => {
 
   const fileName = `${Date.now()}-${file.name}`;
   const absolutePath = path.join(uploadPath, fileName);
+  const buffer = Buffer.from(await file.arrayBuffer());
 
   // Fileオブジェクトから、Buffer に変換する
-  const buffer = Buffer.from(await file.arrayBuffer());
   // S3へのアップロードに必要な情報をまとめるオブジェクト
   // Bucket: アップロード先のバケット名を環境変数から取得します。
   // Key: アップロードするファイルのキーを指定します。

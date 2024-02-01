@@ -26,7 +26,6 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
   });
 
   const profileIconRef = form.register("profileIcon");
-
   const { errors, isSubmitting } = form.formState;
 
   const onSubmit = form.handleSubmit(async (data: TUserProfileEditSchema) => {

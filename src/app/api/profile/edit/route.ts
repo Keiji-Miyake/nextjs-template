@@ -1,25 +1,26 @@
 import { NextRequest } from "next/server";
 
+import { AppError } from "@/domains/error/class/AppError";
 import { UserProfilePutSchema } from "@/domains/user/schema";
-import { getAuthSession } from "@/libs/auth";
+import { auth } from "@/libs/auth";
 import { prisma } from "@/libs/prisma";
 import { errorResponse, successResponse } from "@/libs/responseHandler";
 import { uploadImageToS3 } from "@/libs/s3";
 
 export async function PUT(req: NextRequest) {
-  const session = await getAuthSession();
-  // ログイン中でなければエラーを返す
-  if (!session) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-  // ログイン中のユーザーデータを取得する
-  const user = "user" in session ? session.user : null;
+  const session = await auth();
   const formData = await req.formData();
-  // const profileIcon = formData.getAll("profileIcon");
-  // フォームデータをオブジェクトに変換する。Zodでバリデーションするために必要
   const data = Object.fromEntries(formData);
 
   try {
+    if (req.method !== "PUT") {
+      throw new AppError("METHOD_NOT_ALLOWED");
+    }
+    if (!session) {
+      throw new AppError("UNAUTHORIZED");
+    }
+
+    const user = "user" in session ? session.user : null;
     // バリデーション
     const validatedData = UserProfilePutSchema.parse(data);
 

@@ -128,7 +128,10 @@ export const UserProfileEditSchema = UserBaseSchema.pick({
   }),
 );
 
-export const UserProfilePutSchema = UserProfileEditSchema.merge(
+export const UserProfilePutSchema = UserBaseSchema.pick({
+  name: true,
+  email: true,
+}).merge(
   z.object({
     profileIcon: z
       .custom<File>()

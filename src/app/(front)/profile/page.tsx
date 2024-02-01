@@ -18,7 +18,7 @@ const Page = async () => {
   if (!profile) throw new AppError("INTERNAL_SERVER_ERROR", "プロフィールが見つかりません。", "/");
   return (
     <div className="container">
-      <h1>会員プロフィール編集</h1>
+      <h1>プロフィール編集</h1>
       <EditForm profile={profile} />
     </div>
   );
