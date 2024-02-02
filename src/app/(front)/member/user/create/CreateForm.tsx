@@ -57,6 +57,7 @@ const CreateForm = () => {
       }
 
       router.push("/member/user/");
+      router.refresh();
     } catch (error: any) {
       console.error("ユーザー登録エラー:", error);
       if (error.zodErrors) {
