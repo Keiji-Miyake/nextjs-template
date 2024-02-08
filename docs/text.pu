@@ -1,0 +1,12 @@
+@startuml test
+
+package Test {
+    class Test {
+        hoge: Hoge
+    }
+    class Hoge {}
+
+    Test -- Hoge
+}
+
+@enduml
