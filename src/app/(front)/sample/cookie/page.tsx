@@ -1,7 +1,5 @@
 import { cookies } from "next/headers";
 
-import ClientCookie from "./ClientCookie";
-
 const page = () => {
   const sample = cookies().get("middleware");
 
@@ -13,7 +11,6 @@ const page = () => {
       <div>
         {sample?.name}: {sample?.value}
       </div>
-      <ClientCookie />
     </>
   );
 };
