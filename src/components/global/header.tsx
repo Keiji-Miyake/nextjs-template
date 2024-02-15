@@ -76,37 +76,37 @@ const Header = () => {
             <NavigationMenuList>
               {session && (
                 <NavigationMenuItem>
-                  <Link href="/member/user" legacyBehavior passHref>
+                  <Link href="/member/users" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>User</NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
               )}
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Samples</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
                       <NavigationMenuLink asChild>
-                        <a
+                        <Link
                           className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                          href="/"
+                          href="/sample/cookie"
                         >
-                          <div className="mb-2 mt-4 text-lg font-medium">shadcn/ui</div>
+                          <div className="mb-2 mt-4 text-lg font-medium">Cookie</div>
                           <p className="text-sm leading-tight text-muted-foreground">
-                            Beautifully designed components built with Radix UI and Tailwind CSS.
+                            middlewareで設定したCookieを取得するサンプルです。
                           </p>
-                        </a>
+                        </Link>
                       </NavigationMenuLink>
                     </li>
-                    <ListItem href="/docs" title="Introduction">
-                      Re-usable components built using Radix UI and Tailwind CSS.
+                    <ListItem href="/sample/data-fetch/useEffect" title="useEffect">
+                      useEffectでデータフェッチを行うサンプルです。
                     </ListItem>
-                    <ListItem href="/docs/installation" title="Installation">
-                      How to install dependencies and structure your app.
+                    <ListItem href="/sample/data-fetch/useSWR" title="useSWR">
+                      useSWRでデータフェッチを行うサンプルです。
                     </ListItem>
-                    <ListItem href="/docs/primitives/typography" title="Typography">
-                      Styles for headings, paragraphs, lists...etc
+                    <ListItem href="/sample/session-storage" title="Session Storage">
+                      Session Storageのサンプルです。
                     </ListItem>
                   </ul>
                 </NavigationMenuContent>

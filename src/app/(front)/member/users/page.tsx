@@ -47,7 +47,7 @@ const users = async ({
     throw new AppError("UNAUTHORIZED", "ログインが必要です。", "/login");
   }
   const memberId = session?.user.memberId;
-  const currentPage = Number(searchParams?.page) || 1;
+  const currentPage = Number(searchParams?.page) ?? 1;
   const { users, totalCount } = await userService.fetchUsersPage(memberId, currentPage, USERS_PER_PAGE);
   const totalPages = Math.ceil(totalCount / USERS_PER_PAGE);
 
@@ -55,7 +55,7 @@ const users = async ({
     <div className="container">
       <h1>ユーザー一覧</h1>
       <Button asChild>
-        <Link href={`/member/user/create`}>ユーザー作成</Link>
+        <Link href={`/member/users/create`}>ユーザー作成</Link>
       </Button>
       <Table>
         <TableCaption>ユーザー一覧</TableCaption>

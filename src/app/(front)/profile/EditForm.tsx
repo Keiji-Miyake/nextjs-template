@@ -19,9 +19,9 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
     mode: "onChange",
     resolver: zodResolver(UserProfileEditSchema),
     defaultValues: {
-      name: profile.name || "",
-      email: profile.email || "",
-      profileIcon: profile.profileIcon || undefined,
+      name: profile.name ?? "",
+      email: profile.email ?? "",
+      profileIcon: profile.profileIcon ?? undefined,
     },
   });
 

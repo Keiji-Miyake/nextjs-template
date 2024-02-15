@@ -47,7 +47,7 @@ const CreateForm = () => {
 
     try {
       // リクエストを送信する
-      const response = await fetch("/api/user/create", {
+      const response = await fetch("/api/users/create", {
         method: "POST",
         body: formData,
       });
@@ -56,7 +56,7 @@ const CreateForm = () => {
         throw payload.error;
       }
 
-      router.push("/member/user/");
+      router.push("/member/users/");
       router.refresh();
     } catch (error: any) {
       console.error("ユーザー登録エラー:", error);

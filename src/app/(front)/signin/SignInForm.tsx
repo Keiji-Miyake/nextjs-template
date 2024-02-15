@@ -14,7 +14,7 @@ import { TUserSignInSchema, UserSignInSchema } from "@/domains/user/schema";
 
 const SignInForm = () => {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
   const router = useRouter();
   const form = useForm<TUserSignInSchema>({
     mode: "onChange",
@@ -30,7 +30,7 @@ const SignInForm = () => {
     try {
       const response = await signIn("root", {
         redirect: false,
-        callbackUrl: callbackUrl || "/",
+        callbackUrl: callbackUrl,
         email: data.email,
         password: data.password,
       });
@@ -39,7 +39,7 @@ const SignInForm = () => {
         throw new AppError("UNAUTHORIZED", "ログインに失敗しました。メールアドレスかパスワードが間違っています。");
       }
       console.log("ログイン成功:", response);
-      router.push(callbackUrl || "/");
+      router.push(callbackUrl);
     } catch (error: any) {
       console.error("ログインエラー:", error);
       form.setError("root.serverError", { message: error.message });
