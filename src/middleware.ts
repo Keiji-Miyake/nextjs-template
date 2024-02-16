@@ -53,9 +53,35 @@ export function middleware(req: NextRequest) {
     const response = NextResponse.next();
     // URLパスを取得
     const path = req.nextUrl.pathname;
+    console.debug("path", path);
 
-    // パスが /user/[id]/edit の形式に一致するか確認
-    // const match = path.match(/^\/user\/(.+)\/edit$/);
+    // /sample/dynamic/[id]|[slug]/ の形式に一致するか確認
+    const matchDynamicPath = path.match(/^\/sample\/dynamic\/(.+)\/(.*)$/);
+    console.debug("matchDynamicPath", matchDynamicPath);
+    if (matchDynamicPath) {
+      // パスの値を取得
+      const dynamicPath = matchDynamicPath[2];
+      console.debug("dynamicPath", dynamicPath);
+      const cookieDynamicPath = req.cookies.get("dynamic_path")?.value;
+      // パスの値をログに出力
+      console.log("dynamicPath", dynamicPath);
+      if (!cookieDynamicPath || dynamicPath !== cookieDynamicPath) {
+        const cookieOptions = {
+          name: "dynamic_path",
+          value: dynamicPath,
+          options: {
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7,
+            // sameSite: "lax",
+            secure: true,
+            httpOnly: true,
+          },
+        };
+
+        response.cookies.set(cookieOptions);
+      }
+    }
+
     const match = path.match(/^\/sample\/cookie$/);
     // /sample/cookieページではCookieを設定
     if (match) {
