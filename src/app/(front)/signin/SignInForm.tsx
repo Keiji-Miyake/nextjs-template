@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AppError } from "@/domains/error/class/AppError";
+import { BadRequestError } from "@/domains/error/class/BadRequestError";
 import { TUserSignInSchema, UserSignInSchema } from "@/domains/user/schema";
 
 const SignInForm = () => {
@@ -36,7 +36,7 @@ const SignInForm = () => {
       });
       if (response?.error) {
         console.error("ログイン失敗:", response.error);
-        throw new AppError("UNAUTHORIZED", "ログインに失敗しました。メールアドレスかパスワードが間違っています。");
+        throw new BadRequestError();
       }
       console.log("ログイン成功:", response);
       router.push(callbackUrl);

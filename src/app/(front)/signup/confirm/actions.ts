@@ -1,6 +1,6 @@
 "use server";
 
-import { AppError } from "@/domains/error/class/AppError";
+import { ConflictError } from "@/domains/error/class/ConflictError";
 import {
   MemberRegisterPostSchema,
   TMemberRegisterFormSchema,
@@ -24,11 +24,7 @@ export async function registerMember(formData: TMemberRegisterFormSchema) {
     const validatedData = await MemberRegisterPostSchema.parse(formData);
     // メールアドレスが既に登録済みでないか;
     if (await memberService.isExisting(validatedData.email)) {
-      throw new AppError(
-        "CONFLICT",
-        "既に登録済みです。ログインしてご利用いただけます。",
-        "/login",
-      );
+      throw new ConflictError("既に登録されているメールアドレスです");
     }
 
     const registerData = await memberService.register(validatedData);

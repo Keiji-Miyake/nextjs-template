@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 
-import { HttpResponseData } from "@/config/httpResponse";
-
 import handleErrors from "./errorHandler";
 
 export const successResponse = <T = unknown>(
@@ -18,16 +16,15 @@ export const successResponse = <T = unknown>(
 };
 
 export const errorResponse = (error: unknown) => {
-  const { errorCode, errorData } = handleErrors(error);
+  const errorInfo = handleErrors(error);
 
   return NextResponse.json(
     {
       success: false,
-      code: errorCode,
-      error: errorData,
+      ...errorInfo,
     },
     {
-      status: HttpResponseData[errorCode].status,
+      status: errorInfo.code,
     },
   );
 };

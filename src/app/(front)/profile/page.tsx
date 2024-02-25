@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 
-import { AppError } from "@/domains/error/class/AppError";
+import { NotFoundError } from "@/domains/error/class/NotFoundError";
+import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import { auth } from "@/libs/auth";
 import { getProfile } from "@/libs/utils";
 
@@ -13,9 +14,9 @@ export const metadata: Metadata = {
 
 const Page = async () => {
   const session = await auth();
-  if (!session) throw new AppError("UNAUTHORIZED", "ログインしてください。", "/signin");
+  if (!session) throw new UnauthorizedError();
   const profile = await getProfile(session?.user?.id);
-  if (!profile) throw new AppError("INTERNAL_SERVER_ERROR", "プロフィールが見つかりません。", "/");
+  if (!profile) throw new NotFoundError();
   return (
     <div className="container">
       <h1>会員プロフィール編集</h1>

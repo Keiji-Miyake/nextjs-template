@@ -57,14 +57,14 @@ const RegisterForm = ({ email }: { email: string }) => {
         body: formData,
       });
 
-      const payload = await response.json();
+      const json = await response.json();
       if (!response.ok) {
-        throw payload.error;
+        throw json;
       }
 
       //作成成功後、ログインしている状態にする
       const signInResponse = await signIn("root", {
-        email: payload?.data.email,
+        email: json?.data.email,
         password: data.password,
         redirect: false,
       });
@@ -76,8 +76,8 @@ const RegisterForm = ({ email }: { email: string }) => {
 
       router.push("/");
     } catch (error: any) {
-      if (error.zodErrors) {
-        Object.entries(error.zodErrors).forEach(([key, value]) => {
+      if (error.fieldErrors) {
+        Object.entries(error.fieldErrors).forEach(([key, value]) => {
           form.setError(key as keyof TMemberRegisterFormSchema, {
             message: value as string,
           });

@@ -1,21 +1,23 @@
 import { NextRequest } from "next/server";
 
 import { HttpResponseData } from "@/config/httpResponse";
-import { AppError } from "@/domains/error/class/AppError";
+import { InternalServerError } from "@/domains/error/class/InternalServerError";
+import { MethodNotAllowedError } from "@/domains/error/class/MethodNotAllowedError";
+import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import UserService from "@/domains/user/service";
 import { auth } from "@/libs/auth";
 import { errorResponse, successResponse } from "@/libs/responseHandler";
 
 export async function POST(req: NextRequest) {
   if (req.method !== "POST") {
-    throw new AppError("METHOD_NOT_ALLOWED");
+    throw new MethodNotAllowedError();
   }
 
   const userService = new UserService();
 
   const session = await auth();
   if (!session) {
-    throw new AppError("UNAUTHORIZED");
+    throw new UnauthorizedError();
   }
   const memberId = session?.user.memberId;
 
@@ -25,10 +27,7 @@ export async function POST(req: NextRequest) {
   try {
     const createdUser = await userService.create(memberId, payload);
     if (createdUser === null) {
-      throw new AppError(
-        "INTERNAL_SERVER_ERROR",
-        "ユーザー作成に失敗しました。",
-      );
+      throw new InternalServerError("ユーザー作成に失敗しました。");
     }
 
     return successResponse(HttpResponseData.CREATED.status, createdUser);

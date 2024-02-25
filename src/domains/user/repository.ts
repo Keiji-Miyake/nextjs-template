@@ -67,7 +67,7 @@ class UserRepository {
    * @param memberId
    * @param page
    * @param perPage
-   * @returns users, totalCount
+   * @returns users User[] | null
    * @throws PrismaClientKnownRequestError
    */
   async findByMemberIdWithPagination(

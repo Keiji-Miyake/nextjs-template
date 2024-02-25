@@ -1,7 +1,7 @@
 import { Member, Prisma, RegistrationToken } from "@prisma/client";
 import bcrypt from "bcrypt";
 
-import { AppError } from "@/domains/error/class/AppError";
+import { NotFoundError } from "@/domains/error/class/NotFoundError";
 import dayjs from "@/libs/dayjs";
 import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
 import { sendEmail } from "@/libs/sendmail";
@@ -13,6 +13,9 @@ import {
   MemberRegisterPostSchema,
   TMemberRegisterPostSchema,
 } from "./schema";
+import { BadRequestError } from "../error/class/BadRequestError";
+import { ConflictError } from "../error/class/ConflictError";
+import { UnauthorizedError } from "../error/class/UnauthorizedError";
 
 class MemberService {
   private memberRepository: MemberRepository;
@@ -120,14 +123,10 @@ URLの有効期限は${expireAtText}です。
       const registrationToken =
         await this.memberRepository.findRegistrationToken(token);
       if (!registrationToken) {
-        throw new AppError("BAD_REQUEST", "無効なトークンです。", "/signup");
+        throw new NotFoundError("無効なトークンです。");
       }
       if (registrationToken.expiresAt < new Date()) {
-        throw new AppError(
-          "UNAUTHORIZED",
-          "有効期限切れのトークンです。",
-          "/signup",
-        );
+        throw new UnauthorizedError("有効期限切れのトークンです。");
       }
 
       return registrationToken;
@@ -140,7 +139,7 @@ URLの有効期限は${expireAtText}です。
    * 会員登録
    * @param params
    * @returns Promise<Member>
-   * @throws AppError
+   * @throws Error
    */
   async register(params: TMemberRegisterPostSchema): Promise<Member> {
     const memberId = await this.generateMemberId();
@@ -152,10 +151,8 @@ URLの有効期限は${expireAtText}です。
       // メールアドレスが既に登録済みでないか
       if (await this.isExisting(validatedData.email)) {
         console.error("登録済みのメールアドレス:", validatedData.email);
-        throw new AppError(
-          "CONFLICT",
+        throw new ConflictError(
           "既に登録済みです。ログインしてご利用いただけます。",
-          "/login",
         );
       }
 
@@ -196,7 +193,7 @@ URLの有効期限は${expireAtText}です。
    * サインイン
    * @param credentials
    * @returns Promise<Member>
-   * @throws AppError
+   * @throws Error
    */
   async signIn(credentials: Record<"email" | "password", string>) {
     console.debug("credentials:", credentials);
@@ -207,7 +204,7 @@ URLの有効期限は${expireAtText}です。
       );
       // 3. もし存在しなかったら
       if (!rootUser) {
-        throw new AppError("NOT_FOUND", "登録されていません。");
+        throw new NotFoundError("登録されていません。");
       }
 
       // 4. パスワードが正しいか
@@ -218,7 +215,7 @@ URLの有効期限は${expireAtText}です。
 
       // 5. パスワードが正しくなかったら
       if (!isValidPassword) {
-        throw new AppError("UNAUTHORIZED", "パスワードが正しくありません。");
+        throw new BadRequestError("パスワードが正しくありません。");
       }
 
       // 6. ログイン

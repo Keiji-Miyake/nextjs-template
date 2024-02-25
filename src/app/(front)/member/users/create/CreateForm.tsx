@@ -51,17 +51,17 @@ const CreateForm = () => {
         method: "POST",
         body: formData,
       });
-      const payload = await response.json();
+      const json = await response.json();
       if (!response.ok) {
-        throw payload.error;
+        throw json;
       }
 
       router.push("/member/users/");
       router.refresh();
     } catch (error: any) {
       console.error("ユーザー登録エラー:", error);
-      if (error.zodErrors) {
-        Object.entries(error.zodErrors).forEach(([key, value]) => {
+      if (error.fieldErrors) {
+        Object.entries(error.fieldErrors).forEach(([key, value]) => {
           form.setError(key as keyof TUserCreateFormSchema, {
             message: value as string,
           });

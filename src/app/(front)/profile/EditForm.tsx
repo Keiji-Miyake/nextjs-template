@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AppError } from "@/domains/error/class/AppError";
 import { TUserProfileEditSchema, UserProfileEditSchema } from "@/domains/user/schema";
 import { UserProfile } from "@/domains/user/type";
 
@@ -52,14 +51,14 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
       const json = await response.json();
 
       if (!response.ok) {
-        throw new AppError(json.code, json.error.message);
+        throw json;
       }
 
       return router.push("/profile");
     } catch (error: any) {
       console.error("エラー:", error);
-      if (error.zodErrors) {
-        Object.entries(error.zodErrors).forEach(([key, value]) => {
+      if (error.fieldErrors) {
+        Object.entries(error.fieldErrors).forEach(([key, value]) => {
           form.setError(key as keyof TUserProfileEditSchema, {
             message: value as string,
           });

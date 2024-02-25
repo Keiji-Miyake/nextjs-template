@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 
-import { AppError } from "@/domains/error/class/AppError";
+import { ConflictError } from "@/domains/error/class/ConflictError";
+import { NotFoundError } from "@/domains/error/class/NotFoundError";
 import MemberService from "@/domains/member/service";
 import { errorResponse, successResponse } from "@/libs/responseHandler";
 
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   try {
     if (!token) {
-      throw new AppError("BAD_REQUEST", "Tokenがありません。", "/signup");
+      throw new NotFoundError("Tokenが見つかりません");
     }
     const registrationToken =
       await memberService.getValidRegistrationToken(token);
@@ -18,10 +19,8 @@ export async function GET(req: NextRequest) {
     // 登録済みのメールアドレスかどうかを確認する
     if (await memberService.isExisting(registrationToken.email)) {
       console.error("登録済みのメールアドレス:", registrationToken.email);
-      throw new AppError(
-        "CONFLICT",
+      throw new ConflictError(
         "既に登録済みです。ログインしてご利用いただけます。",
-        "/login",
       );
     }
 

@@ -5,7 +5,7 @@ module.exports = {
     "next/core-web-vitals",
     "prettier",
   ],
-  plugins: ['@typescript-eslint'],
+  plugins: ["@typescript-eslint"],
   parserOptions: {
     project: true,
     tsconfigRootDir: __dirname,
@@ -20,17 +20,18 @@ module.exports = {
   rules: {
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    "sort-imports": [
+      "error",
+      {
+        ignoreCase: true, // 大文字小文字を区別しない
+        ignoreDeclarationSort: true, // import文のソートを無視
+      },
+    ],
     "import/order": [
       "error",
       {
-        "newlines-between": "always", // グループ毎にで改行を入れる
-        pathGroupsExcludedImportTypes: ["builtin"],
-        alphabetize: {
-          order: "asc", // 昇順にソート
-          caseInsensitive: true, // 小文字大文字を区別する
-        },
         groups: [
-          ["builtin", "external"], // 組み込みモジュール, npmでインストールした外部ライブラリ
+          ["external", "builtin"], // 組み込みモジュール, npmでインストールした外部ライブラリ
           "internal", // 自作モジュール
           ["parent", "sibling"],
           "object",
@@ -39,21 +40,26 @@ module.exports = {
         ],
         pathGroups: [
           {
+            pattern: "react",
+            group: "external",
+            position: "before",
+          },
+          {
             pattern: "next/**",
             group: "external",
             position: "before",
           },
           {
-            pattern: "@/components/common",
+            pattern: "@/components/**",
             group: "internal",
-            position: "before",
-          },
-          {
-            pattern: "@/components/hooks",
-            group: "internal",
-            position: "before",
           },
         ],
+        pathGroupsExcludedImportTypes: ["internal", "react"],
+        "newlines-between": "always", // グループ毎にで改行を入れる
+        alphabetize: {
+          order: "asc", // 昇順にソート
+          caseInsensitive: true, // 小文字大文字を区別する
+        },
       },
     ],
   },

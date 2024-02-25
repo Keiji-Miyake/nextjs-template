@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AppError } from "@/domains/error/class/AppError";
 import { MemberSignUpSchema, TMemberSignUpSchema } from "@/domains/member/schema";
 
 const SignUpForm = () => {
@@ -32,13 +31,13 @@ const SignUpForm = () => {
       const json = await response.json();
 
       if (!response.ok) {
-        throw new AppError(json.code, json.error.message);
+        throw json;
       }
 
       return router.push("/signup/email-sent");
     } catch (error: any) {
-      if (error.zodErrors) {
-        Object.entries(error.zodErrors).forEach(([key, value]) => {
+      if (error.fieldErrors) {
+        Object.entries(error.fieldErrors).forEach(([key, value]) => {
           form.setError(key as keyof TMemberSignUpSchema, {
             message: value as string,
           });

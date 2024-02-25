@@ -24,7 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { USERS_PER_PAGE } from "@/config/site";
-import { AppError } from "@/domains/error/class/AppError";
+import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import UserService from "@/domains/user/service";
 import { auth } from "@/libs/auth";
 
@@ -44,12 +44,17 @@ const users = async ({
   const userService = new UserService();
   const session = await auth();
   if (!session) {
-    throw new AppError("UNAUTHORIZED", "ログインが必要です。", "/login");
+    throw new UnauthorizedError();
   }
   const memberId = session?.user.memberId;
   const currentPage = Number(searchParams?.page) ?? 1;
-  const { users, totalCount } = await userService.fetchUsersPage(memberId, currentPage, USERS_PER_PAGE);
-  const totalPages = Math.ceil(totalCount / USERS_PER_PAGE);
+  const usersPageResult = await userService.fetchUsersPage(memberId, currentPage, USERS_PER_PAGE);
+  if (!usersPageResult.success) {
+    throw new Error(usersPageResult.errorInfo?.message);
+  }
+  const users = usersPageResult.users;
+  const totalPages = Math.ceil(usersPageResult.totalCount ?? 0 / USERS_PER_PAGE);
+  const totalCount = usersPageResult.totalCount ?? 0;
 
   return (
     <div className="container">

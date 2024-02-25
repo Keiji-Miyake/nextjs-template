@@ -2,7 +2,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { getServerSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { AppError } from "@/domains/error/class/AppError";
+import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import MemberService from "@/domains/member/service";
 
 import { prisma } from "./prisma";
@@ -113,6 +113,6 @@ export const getAuthSession = async () => {
   if (session) {
     return session;
   } else {
-    throw new AppError("UNAUTHORIZED");
+    throw new UnauthorizedError();
   }
 };

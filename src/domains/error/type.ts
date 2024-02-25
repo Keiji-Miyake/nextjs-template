@@ -1,11 +1,10 @@
-export type TErrorData = {
-  code?: string;
-  message: string;
-  error: unknown;
-  zodErrors?: {
-    [x: string]: string[] | undefined;
-    [x: number]: string[] | undefined;
-    [x: symbol]: string[] | undefined;
-  };
-  redirect?: string;
+import { User } from "@prisma/client";
+
+import { ErrorInfo } from "@/config/error";
+
+export type TFetchUsersPageResult = {
+  success: boolean;
+  users?: User[] | null;
+  totalCount?: number;
+  errorInfo?: ErrorInfo;
 };

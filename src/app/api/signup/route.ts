@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 import { HttpResponseData } from "@/config/httpResponse";
-import { AppError } from "@/domains/error/class/AppError";
+import { MethodNotAllowedError } from "@/domains/error/class/MethodNotAllowedError";
 import { TMemberRegisterFormSchema } from "@/domains/member/schema";
 import MemberService from "@/domains/member/service";
 import { errorResponse, successResponse } from "@/libs/responseHandler";
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   try {
     if (req.method !== "POST") {
-      throw new AppError("METHOD_NOT_ALLOWED");
+      throw new MethodNotAllowedError();
     }
     const registerData = await memberService.register(params);
 

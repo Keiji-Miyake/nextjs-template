@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-
 import { useEffect } from "react";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 import { useToast } from "@/components/ui/use-toast";
-import { HttpResponseData, THttpResponseCode } from "@/config/httpResponse";
+import { ErrorDictionary } from "@/config/error";
 
 export const ErrorToaster = () => {
   const searchParams = useSearchParams();
@@ -14,8 +14,8 @@ export const ErrorToaster = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (errorCode && errorCode in HttpResponseData) {
-      const errorMessage = HttpResponseData[errorCode as THttpResponseCode].message || "エラーが発生しました";
+    if (errorCode && errorCode in ErrorDictionary) {
+      const errorMessage = ErrorDictionary[errorCode].message || "エラーが発生しました";
       toast({
         variant: "destructive",
         description: errorMessage,

@@ -2,11 +2,13 @@ import { Prisma, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import "server-only";
 
-import { AppError } from "@/domains/error/class/AppError";
+import { ConflictError } from "@/domains/error/class/ConflictError";
 import UserRepository from "@/domains/user/repository";
+import { UserCreatePostSchema } from "@/domains/user/schema";
+import handleErrors from "@/libs/errorHandler";
 import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
 
-import { UserCreatePostSchema } from "./schema";
+import { TFetchUsersPageResult } from "../error/type";
 
 class UserService {
   private userRepository: UserRepository;
@@ -53,8 +55,7 @@ class UserService {
         memberId,
       );
       if (user) {
-        throw new AppError(
-          "CONFLICT",
+        throw new ConflictError(
           "既に登録済みです。ログインしてご利用いただけます。",
         );
       }
@@ -111,7 +112,7 @@ class UserService {
     memberId: string,
     page: number,
     perPage: number,
-  ): Promise<{ users: User[] | null; totalCount: number }> {
+  ): Promise<TFetchUsersPageResult> {
     try {
       const users = await this.userRepository.findByMemberIdWithPagination(
         memberId,
@@ -119,9 +120,10 @@ class UserService {
         perPage,
       );
       const totalCount = await this.userRepository.countByMemberId(memberId);
-      return { users, totalCount };
+      return { success: true, users, totalCount };
     } catch (error) {
-      throw error;
+      const errorInfo = handleErrors(error);
+      return { success: false, errorInfo };
     }
   }
 }
