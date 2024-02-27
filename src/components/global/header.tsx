@@ -1,11 +1,12 @@
 "use client";
 
+import * as React from "react";
+
 import Link from "next/link";
 
 import { Moon, Sun } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
-import * as React from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

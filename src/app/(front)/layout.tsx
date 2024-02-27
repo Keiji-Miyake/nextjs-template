@@ -1,7 +1,8 @@
+import React from "react";
+
 import { Noto_Sans_JP } from "next/font/google";
 
 import { Metadata } from "next";
-import React from "react";
 
 import { ErrorToaster } from "@/components/global/error-toast";
 import Header from "@/components/global/header";

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { ErrorDictionary, ErrorInfo } from "@/config/error";
 import { BaseError } from "@/domains/error/class/BaseError";
 
-export default function handleErrors(error: unknown): ErrorInfo {
+export default function generateErrorInfo(error: unknown): ErrorInfo {
   let errorInfo: ErrorInfo;
 
   if (error instanceof BaseError) {

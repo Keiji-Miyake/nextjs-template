@@ -5,7 +5,7 @@ import "server-only";
 import { ConflictError } from "@/domains/error/class/ConflictError";
 import UserRepository from "@/domains/user/repository";
 import { UserCreatePostSchema } from "@/domains/user/schema";
-import handleErrors from "@/libs/errorHandler";
+import generateErrorInfo from "@/libs/error";
 import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
 
 import { TFetchUsersPageResult } from "../error/type";
@@ -122,7 +122,7 @@ class UserService {
       const totalCount = await this.userRepository.countByMemberId(memberId);
       return { success: true, users, totalCount };
     } catch (error) {
-      const errorInfo = handleErrors(error);
+      const errorInfo = generateErrorInfo(error);
       return { success: false, errorInfo };
     }
   }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import handleErrors from "./errorHandler";
+import generateErrorInfo from "./error";
 
 export const successResponse = <T = unknown>(
   code: number,
@@ -16,7 +16,7 @@ export const successResponse = <T = unknown>(
 };
 
 export const errorResponse = (error: unknown) => {
-  const errorInfo = handleErrors(error);
+  const errorInfo = generateErrorInfo(error);
 
   return NextResponse.json(
     {

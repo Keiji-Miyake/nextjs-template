@@ -1,5 +1,6 @@
-import { Metadata } from "next";
 import React from "react";
+
+import { Metadata } from "next";
 
 import Header from "@/components/global/header";
 import NextAuthProvider from "@/providers/NextAuth";
