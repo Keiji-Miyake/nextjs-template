@@ -1,11 +1,8 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { getServerSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import MemberService from "@/domains/member/service";
-
-import { prisma } from "./prisma";
 
 import type {
   GetServerSidePropsContext,
@@ -16,7 +13,6 @@ import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   debug: true,
-  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days

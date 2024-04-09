@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TUserProfileEditSchema, UserProfileEditSchema } from "@/domains/user/schema";
@@ -20,7 +21,14 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
     defaultValues: {
       name: profile.name ?? "",
       email: profile.email ?? "",
-      profileIcon: profile.profileIcon ?? undefined,
+      profileIcon: undefined,
+      useProfileIcon: false,
+    },
+    values: {
+      name: profile.name,
+      email: profile.email,
+      profileIcon: undefined,
+      useProfileIcon: profile.profileIcon ? true : false,
     },
   });
 
@@ -53,6 +61,8 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
       if (!response.ok) {
         throw json;
       }
+
+      console.debug(json);
 
       return router.push("/profile");
     } catch (error: any) {
@@ -107,7 +117,20 @@ const EditForm = ({ profile }: { profile: UserProfile }) => {
             <FormItem>
               <FormLabel>プロフィール画像</FormLabel>
               <FormControl>
-                <Input type="file" accept="image/*" {...profileIconRef} value={undefined} />
+                <Input type="file" accept="image/*" {...profileIconRef} disabled={!form.watch("useProfileIcon")} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="useProfileIcon"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>プロフィール画像を登録する</FormLabel>
+              <FormControl>
+                <Checkbox {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

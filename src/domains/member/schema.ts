@@ -1,21 +1,9 @@
 import { z } from "zod";
 
-import customErrorMap from "@/libs/zodErrorMap";
+import { MEMBER_ID_LENGTH } from "@/config/site";
+import { customErrorMap, fileSchema } from "@/libs/zod";
 
 z.setErrorMap(customErrorMap);
-
-const LOGO_CONFIG = {
-  MAX_MB: 5,
-  MAX_SIZE: 1024 * 1024 * 5, // 5MB
-  ACCEPTED_FILE_TYPES: [
-    "image/png",
-    "image/jpg",
-    "image/jpeg",
-    "image/svg+xml",
-    "image/webp",
-  ],
-};
-export const MEMBER_ID_LENGTH = 8;
 
 export type TMemberBaseSchema = z.infer<typeof MemberBaseSchema>;
 export type TMemberSignUpSchema = z.infer<typeof MemberSignUpSchema>;
@@ -53,30 +41,10 @@ export const MemberRegisterFormSchema = MemberBaseSchema.pick({
   name: true,
   password: true,
 })
-  .merge(
-    z.object({
-      logo: z
-        .custom<FileList>()
-        .transform((file) => file[0])
-        .refine(
-          (file) => file === undefined || file?.size <= LOGO_CONFIG.MAX_SIZE,
-          {
-            message: `ファイルサイズは${LOGO_CONFIG.MAX_MB}MB以下にしてください。`,
-          },
-        )
-        .refine(
-          (file) =>
-            file === undefined ||
-            LOGO_CONFIG.ACCEPTED_FILE_TYPES.includes(file?.type),
-          {
-            message:
-              "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-          },
-        )
-        .optional(),
-      confirmPassword: z.string().optional(),
-    }),
-  )
+  .extend({
+    logo: fileSchema(true).optional(),
+    confirmPassword: z.string().optional(),
+  })
   .refine((data) => data.password === data.confirmPassword, {
     message: "パスワードが一致しません。",
     path: ["confirmPassword"],
@@ -87,30 +55,10 @@ export const MemberRegisterPostSchema = MemberBaseSchema.pick({
   name: true,
   password: true,
 })
-  .merge(
-    z.object({
-      logo: z
-        .custom<File>()
-        .refine(
-          (file) =>
-            typeof file === "string" || file?.size <= LOGO_CONFIG.MAX_SIZE,
-          {
-            message: `ファイルサイズは${LOGO_CONFIG.MAX_MB}MB以下にしてください。`,
-          },
-        )
-        .refine(
-          (file) =>
-            typeof file === "string" ||
-            LOGO_CONFIG.ACCEPTED_FILE_TYPES.includes(file?.type),
-          {
-            message:
-              "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-          },
-        )
-        .optional(),
-      confirmPassword: z.string().optional(),
-    }),
-  )
+  .extend({
+    logo: fileSchema(false).optional(),
+    confirmPassword: z.string().optional(),
+  })
   .refine((data) => data.password === data.confirmPassword, {
     message: "パスワードが一致しません。",
     path: ["confirmPassword"],

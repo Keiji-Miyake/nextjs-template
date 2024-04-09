@@ -1,21 +1,10 @@
 import { Role } from "@prisma/client";
 import { z } from "zod";
 
-import customErrorMap from "@/libs/zodErrorMap";
+import { MEMBER_ID_LENGTH } from "@/config/site";
+import { customErrorMap, fileSchema } from "@/libs/zod";
 
 z.setErrorMap(customErrorMap);
-
-const MAX_MB = 5;
-const MAX_SIZE = 1024 * 1024 * MAX_MB; // 5MB
-const ACCEPTED_FILE_TYPES = [
-  "image/png",
-  "image/jpg",
-  "image/jpeg",
-  "image/svg+xml",
-  "image/webp",
-];
-
-export const MEMBER_ID_LENGTH = 8;
 
 export type TUserBaseSchema = z.infer<typeof UserBaseSchema>;
 export type TUserCreateFormSchema = z.infer<typeof UserCreateFormSchema>;
@@ -44,27 +33,11 @@ export const UserCreateFormSchema = UserBaseSchema.pick({
   password: true,
   role: true,
 })
-  .merge(
-    z.object({
-      name: z.string().optional(),
-      confirmPassword: z.string().optional(),
-      profileIcon: z
-        .custom<FileList>()
-        .transform((file) => file[0])
-        .refine((file) => file === undefined || file?.size <= MAX_SIZE, {
-          message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
-        })
-        .refine(
-          (file) =>
-            file === undefined || ACCEPTED_FILE_TYPES.includes(file?.type),
-          {
-            message:
-              "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-          },
-        )
-        .optional(),
-    }),
-  )
+  .extend({
+    name: z.string().optional(),
+    confirmPassword: z.string().optional(),
+    profileIcon: fileSchema(true).optional(),
+  })
   .refine((data) => data.password === data.confirmPassword, {
     message: "パスワードが一致しません。",
     path: ["confirmPassword"],
@@ -75,27 +48,11 @@ export const UserCreatePostSchema = UserBaseSchema.pick({
   password: true,
   role: true,
 })
-  .merge(
-    z.object({
-      name: z.string().optional(),
-      confirmPassword: z.string().optional(),
-      profileIcon: z
-        .custom<File>()
-        .refine((file) => typeof file === "string" || file?.size <= MAX_SIZE, {
-          message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
-        })
-        .refine(
-          (file) =>
-            typeof file === "string" ||
-            ACCEPTED_FILE_TYPES.includes(file?.type),
-          {
-            message:
-              "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-          },
-        )
-        .optional(),
-    }),
-  )
+  .extend({
+    name: z.string().optional(),
+    profileIcon: fileSchema(false).optional(),
+    confirmPassword: z.string().optional(),
+  })
   .refine((data) => data.password === data.confirmPassword, {
     message: "パスワードが一致しません。",
     path: ["confirmPassword"],
@@ -109,39 +66,13 @@ export const UserSignInSchema = UserBaseSchema.pick({
 export const UserProfileEditSchema = UserBaseSchema.pick({
   name: true,
   email: true,
-}).merge(
-  z.object({
-    profileIcon: z
-      .custom<FileList>()
-      .transform((file) => file[0])
-      .refine((file) => file === undefined || file?.size <= MAX_SIZE, {
-        message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
-      })
-      .refine(
-        (file) =>
-          file === undefined || ACCEPTED_FILE_TYPES.includes(file?.type),
-        {
-          message:
-            "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-        },
-      ),
-  }),
-);
+}).extend({
+  profileIcon: fileSchema(true).optional(),
+  useProfileIcon: z.boolean().optional(),
+});
 
 export const UserProfilePutSchema = UserProfileEditSchema.merge(
   z.object({
-    profileIcon: z
-      .custom<File>()
-      .refine((file) => typeof file === "string" || file?.size <= MAX_SIZE, {
-        message: `ファイルサイズは${MAX_MB}MB以下にしてください。`,
-      })
-      .refine(
-        (file) =>
-          typeof file === "string" || ACCEPTED_FILE_TYPES.includes(file?.type),
-        {
-          message:
-            "ファイル形式が不正です。jpeg, png, svg, webpのいずれかを選択してください。",
-        },
-      ),
+    profileIcon: fileSchema(false).optional(),
   }),
 );

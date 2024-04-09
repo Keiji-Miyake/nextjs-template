@@ -17,4 +17,16 @@ export const siteConfig = {
   },
 };
 
+export const MEMBER_ID_LENGTH = 8;
+
 export const USERS_PER_PAGE = 10;
+
+export const MAX_MB = 5;
+export const MAX_FILE_SIZE = MAX_MB * 1024 * 1024; // 5MB
+export const ACCEPTED_FILE_TYPES = [
+  "image/png",
+  "image/jpg",
+  "image/jpeg",
+  "image/svg+xml",
+  "image/webp",
+];

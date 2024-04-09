@@ -1,10 +1,8 @@
-import { type ClassValue, clsx } from "clsx";
+import { clsx } from "clsx";
 import crypto from "crypto";
 import { twMerge } from "tailwind-merge";
 
-import { UserProfile } from "@/domains/user/type";
-
-import { prisma } from "./prisma";
+import type { ClassValue } from "clsx";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -35,31 +33,3 @@ export const generateSecureRandomString = async (
  */
 export const formDataToObject = (formData: FormData): Record<string, unknown> =>
   Object.fromEntries(formData.entries());
-
-/**
- * プロフィールを取得
- * @param userId
- * @returns プロフィール
- */
-export const getProfile = async (
-  userId: number,
-): Promise<UserProfile | null> => {
-  try {
-    return await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        profileIcon: true,
-        createdAt: true,
-        updatedAt: true,
-        deletedAt: true,
-        groups: true,
-      },
-    });
-  } catch (error) {
-    console.error("プロフィール取得エラー:", error);
-    throw error;
-  }
-};

@@ -1,9 +1,10 @@
+import { notFound } from "next/navigation";
+
 import { Metadata } from "next";
 
-import { NotFoundError } from "@/domains/error/class/NotFoundError";
 import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
+import UserService from "@/domains/user/service";
 import { auth } from "@/libs/auth";
-import { getProfile } from "@/libs/utils";
 
 import EditForm from "./EditForm";
 
@@ -15,8 +16,10 @@ export const metadata: Metadata = {
 const Page = async () => {
   const session = await auth();
   if (!session) throw new UnauthorizedError();
-  const profile = await getProfile(session?.user?.id);
-  if (!profile) throw new NotFoundError();
+  const userService = new UserService();
+  const profile = await userService.getProfile(session?.user?.id);
+  if (!profile) notFound();
+
   return (
     <div className="container">
       <h1>会員プロフィール編集</h1>

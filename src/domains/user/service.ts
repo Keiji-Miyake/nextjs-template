@@ -1,22 +1,31 @@
 import { Prisma, User } from "@prisma/client";
 import bcrypt from "bcrypt";
+
 import "server-only";
 
 import { ConflictError } from "@/domains/error/class/ConflictError";
 import UserRepository from "@/domains/user/repository";
 import { UserCreatePostSchema } from "@/domains/user/schema";
 import generateErrorInfo from "@/libs/error";
+import { prisma } from "@/libs/prisma";
 import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
 
-import { TFetchUsersPageResult } from "../error/type";
+import type { TFetchUsersPageResult } from "@/domains/error/type";
+import type { UserProfile } from "@/domains/user/type";
 
 class UserService {
-  private userRepository: UserRepository;
+  protected userRepository: UserRepository;
 
   constructor() {
     this.userRepository = new UserRepository();
   }
 
+  /**
+   * 存在するユーザーかどうか
+   * @param {string} email
+   * @param {string} memberId
+   * @returns
+   */
   async isExistingUser(email: string, memberId: string): Promise<boolean> {
     try {
       const existingUser = await this.userRepository.findUnique(
@@ -27,6 +36,27 @@ class UserService {
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * プロフィールを取得
+   * @param {string} authId
+   * @returns
+   */
+  async getProfile(authId: number): Promise<UserProfile | null> {
+    return await prisma.user.findUnique({
+      where: { id: authId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        profileIcon: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        groups: true,
+      },
+    });
   }
 
   /**

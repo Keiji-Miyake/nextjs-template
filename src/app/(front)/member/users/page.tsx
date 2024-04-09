@@ -79,7 +79,9 @@ const users = async ({
         <TableBody>
           {users?.map((user) => (
             <TableRow key={user.id}>
-              <TableCell className="font-medium">{user.id}</TableCell>
+              <TableCell className="font-medium">
+                <Link href={`/member/users/edit/${user.id}`}>{user.id}</Link>
+              </TableCell>
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.role}</TableCell>

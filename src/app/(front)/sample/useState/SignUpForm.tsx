@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { z } from "zod";
 
-import customErrorMap from "@/libs/zodErrorMap";
+import customErrorMap from "@/libs/zod";
 
 z.setErrorMap(customErrorMap);
 
