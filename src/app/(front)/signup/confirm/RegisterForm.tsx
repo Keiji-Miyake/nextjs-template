@@ -47,12 +47,12 @@ const RegisterForm = ({ email }: { email: string }) => {
         }
         return;
       }
-      formData.append(key, value);
+      formData.append(key, value as string | Blob);
     });
 
     try {
       // リクエストを送信する
-      const response = await fetch("/api/signup", {
+      const response = await fetch("/api/v1/member", {
         method: "POST",
         body: formData,
       });

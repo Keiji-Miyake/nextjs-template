@@ -1,30 +1,27 @@
 import { NextRequest } from "next/server";
 
-import { getServerSession } from "next-auth";
-
 import { HttpResponseData } from "@/config/httpResponse";
-import { InternalServerError } from "@/domains/error/class/InternalServerError";
-import UserService from "@/domains/user/service";
+import { MethodNotAllowedError } from "@/domains/error/class/MethodNotAllowedError";
+import { TMemberRegisterFormSchema } from "@/domains/member/schema";
+import MemberService from "@/domains/member/service";
 import { errorResponse, successResponse } from "@/libs/responseHandler";
+import { formDataToObject } from "@/libs/utils";
 
-export async function POST(request: NextRequest) {
-  const userService = new UserService();
+export async function POST(req: NextRequest) {
+  const memberService = new MemberService();
 
-  const formData = await request.formData();
+  const formData = await req.formData();
+  const params = formDataToObject(formData) as TMemberRegisterFormSchema;
 
   try {
-    const session = await getServerSession();
-    const memberId = session?.user.memberId;
-    formData.append("memberId", memberId);
-    const params = Object.fromEntries(formData);
-    const createdUser = await userService.create(params);
-    if (createdUser === null) {
-      throw new InternalServerError("ユーザー作成に失敗しました。");
+    if (req.method !== "POST") {
+      throw new MethodNotAllowedError();
     }
+    const registerData = await memberService.register(params);
 
-    return successResponse(HttpResponseData.CREATED.status, createdUser);
-  } catch (error) {
-    console.error("ユーザー作成失敗:", error);
+    return successResponse(HttpResponseData.CREATED.status, registerData);
+  } catch (error: any) {
+    console.error("新規登録APIエラー:", error);
     return errorResponse(error);
   }
 }

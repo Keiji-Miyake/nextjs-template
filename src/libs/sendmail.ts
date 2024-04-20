@@ -37,19 +37,11 @@ export async function sendEmail({
     transportOptions as SMTPTransport.Options,
   );
 
-  try {
-    const email = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to,
-      subject,
-      html,
-      text,
-    });
-
-    console.log("Message sent: %s", email.messageId);
-    return email;
-  } catch (error) {
-    console.error("メール送信エラー:", error);
-    throw error;
-  }
+  return await transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to,
+    subject,
+    html,
+    text,
+  });
 }

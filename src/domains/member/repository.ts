@@ -2,12 +2,11 @@ import {
   Member,
   Prisma,
   PrismaClient,
-  RegistrationToken,
   Role,
+  SignUpToken,
   User,
 } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { randomBytes } from "crypto";
 
 import { prisma } from "@/libs/prisma";
 
@@ -54,11 +53,9 @@ class MemberRepository {
    * @returns Promise<RegistrationToken | null>
    * @throws Error
    */
-  async findRegistrationToken(
-    token: string,
-  ): Promise<RegistrationToken | null> {
+  async findSignUpToken(token: string): Promise<SignUpToken | null> {
     try {
-      return await this.prisma.registrationToken.findUnique({
+      return await this.prisma.signUpToken.findUnique({
         where: { token },
       });
     } catch (error) {
@@ -83,58 +80,6 @@ class MemberRepository {
         },
       });
       return rootUser;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 会員登録Tokenを作成
-   * @param email
-   * @returns Promise<RegistrationToken>
-   * @throws Error
-   */
-  async createRegistrationToken(email: string): Promise<RegistrationToken> {
-    try {
-      // トークンを生成
-      const token = randomBytes(32).toString("hex");
-      console.debug("token:", token);
-      // 有効期限の設定
-      const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 1);
-
-      // 会員登録Tokenを保存
-      const registrationToken = await this.prisma.registrationToken.upsert({
-        where: { email },
-        update: {
-          token: token,
-          expiresAt: expiresAt,
-        },
-        create: {
-          email: email,
-          token: token,
-          expiresAt: expiresAt,
-        },
-      });
-      console.log("registerTokenData:", registrationToken);
-      return registrationToken;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 会員登録Tokenを削除
-   * @param email
-   */
-  async deleteRegistrationToken(email: string): Promise<RegistrationToken> {
-    try {
-      // 会員登録Tokenを削除
-      const deletedToken = await this.prisma.registrationToken.delete({
-        where: { email },
-      });
-      console.log("deletedToken:", deletedToken);
-      return deletedToken;
     } catch (error) {
       throw error;
     }

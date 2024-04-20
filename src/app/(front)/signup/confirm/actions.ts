@@ -10,15 +10,6 @@ import "server-only";
 
 const memberService = new MemberService();
 
-export async function getRegistrationToken(token: string) {
-  try {
-    const tokenData = await memberService.getValidRegistrationToken(token);
-    return tokenData;
-  } catch (error) {
-    throw error;
-  }
-}
-
 export async function registerMember(formData: TMemberRegisterFormSchema) {
   try {
     const validatedData = await MemberRegisterPostSchema.parse(formData);

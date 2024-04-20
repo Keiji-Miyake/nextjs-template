@@ -1,21 +1,17 @@
-import { Member, Prisma, RegistrationToken } from "@prisma/client";
+import { Member, Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 
+import { MEMBER_ID_LENGTH } from "@/config/site";
+import { BadRequestError } from "@/domains/error/class/BadRequestError";
+import { ConflictError } from "@/domains/error/class/ConflictError";
 import { NotFoundError } from "@/domains/error/class/NotFoundError";
-import dayjs from "@/libs/dayjs";
-import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
-import { sendEmail } from "@/libs/sendmail";
-import { generateSecureRandomString } from "@/libs/utils";
-
-import MemberRepository from "./repository";
+import MemberRepository from "@/domains/member/repository";
 import {
-  MEMBER_ID_LENGTH,
   MemberRegisterPostSchema,
   TMemberRegisterPostSchema,
-} from "./schema";
-import { BadRequestError } from "../error/class/BadRequestError";
-import { ConflictError } from "../error/class/ConflictError";
-import { UnauthorizedError } from "../error/class/UnauthorizedError";
+} from "@/domains/member/schema";
+import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
+import { generateSecureRandomString } from "@/libs/utils";
 
 class MemberService {
   private memberRepository: MemberRepository;
@@ -57,45 +53,6 @@ class MemberService {
   }
 
   /**
-   * 会員登録メールを送信
-   * @param email
-   * @returns Promise<any>
-   */
-  async sendRegistrationEmail(email: string): Promise<any> {
-    try {
-      // 会員登録Tokenを保存
-      const registrationToken =
-        await this.memberRepository.createRegistrationToken(email);
-
-      const expireAtText = dayjs(registrationToken?.expiresAt).format(
-        "YYYY年MM月DD日 HH:mm:ss",
-      );
-      // 会員登録メールを送信
-      const text = `
-新規登録ありがとうございます。
-次のリンクをクリックして登録にお進みください。
-${process.env.NEXT_PUBLIC_WEB_URL}/signup/confirm?token=${registrationToken?.token}
-URLの有効期限は${expireAtText}です。
-`;
-      const html = `
-<p>新規登録ありがとうございます。<br>次のリンクをクリックして登録にお進みください。</p>
-<p><a href="${process.env.NEXT_PUBLIC_WEB_URL}/signup/confirm?token=${registrationToken?.token}">会員登録</a></p>
-<p>URLの有効期限は${expireAtText}です。</p>
-`;
-      const result = await sendEmail({
-        to: email,
-        subject: "申し込みありがとうございます。",
-        text: text,
-        html: html,
-      });
-      console.log("新規登録メール送信しました:", result);
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
    * 会員番号を生成
    * @returns Promise<string>
    */
@@ -108,28 +65,6 @@ URLの有効期限は${expireAtText}です。
         return this.generateMemberId();
       }
       return memberId;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * 会員登録Tokenを取得
-   * @param token
-   * @returns Promise<RegistrationToken>
-   */
-  async getValidRegistrationToken(token: string): Promise<RegistrationToken> {
-    try {
-      const registrationToken =
-        await this.memberRepository.findRegistrationToken(token);
-      if (!registrationToken) {
-        throw new NotFoundError("無効なトークンです。");
-      }
-      if (registrationToken.expiresAt < new Date()) {
-        throw new UnauthorizedError("有効期限切れのトークンです。");
-      }
-
-      return registrationToken;
     } catch (error) {
       throw error;
     }
@@ -163,7 +98,7 @@ URLの有効期限は${expireAtText}です。
       };
 
       // logoがあれば、画像をアップロードして、そのURLを返す。データベースにはファイル名を保存する。
-      if (validatedData.logo) {
+      if (validatedData.logo instanceof File) {
         createData.logo = await uploadImageToS3(
           validatedData.logo,
           logoUploadPath,

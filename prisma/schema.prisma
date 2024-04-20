@@ -16,7 +16,7 @@ enum Role {
   ROOT
 }
 
-model RegistrationToken {
+model SignUpVerification {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   token     String   @unique

@@ -2,7 +2,7 @@ import { undefined, z } from "zod";
 
 import { ACCEPTED_FILE_TYPES, MAX_FILE_SIZE, MAX_MB } from "@/config/site";
 
-export const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
+const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
   switch (issue.code) {
     case z.ZodIssueCode.too_small:
       return { message: `${issue.minimum}文字以上を入力してください。` };
@@ -13,6 +13,9 @@ export const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
   }
   return { message: ctx.defaultError };
 };
+
+z.setErrorMap(customErrorMap);
+export default z;
 
 export const fileSchema = (isFileList: boolean) => {
   const base = isFileList
