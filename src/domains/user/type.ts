@@ -16,3 +16,12 @@ export type UserProfile = {
   deletedAt: Date | null;
   groups: Group[];
 };
+
+export type CreateUserInput = {
+  memberId: string;
+  name: string;
+  email: string;
+  password: string;
+  role: RoleName;
+  profileIcon: File | null;
+};

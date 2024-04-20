@@ -8,6 +8,9 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@prisma/client", "bcrypt"],
     taint: true,
   },
+  images: {
+    domains: ["minio"],
+  },
 };
 
 module.exports = nextConfig;

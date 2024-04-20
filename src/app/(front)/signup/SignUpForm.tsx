@@ -34,7 +34,7 @@ const SignUpForm = () => {
         throw json;
       }
 
-      return router.push("/signup/email-sent");
+      return router.push("/signup/finish");
     } catch (error: any) {
       if (error.fieldErrors) {
         Object.entries(error.fieldErrors).forEach(([key, value]) => {

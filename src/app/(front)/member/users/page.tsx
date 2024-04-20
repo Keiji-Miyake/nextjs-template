@@ -26,7 +26,7 @@ import {
 import { USERS_PER_PAGE } from "@/config/site";
 import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import UserService from "@/domains/user/service";
-import { auth } from "@/libs/auth";
+import { getServerSession } from "@/libs/auth";
 
 export const metadata: Metadata = {
   title: "ユーザー一覧ページ",
@@ -42,13 +42,13 @@ const users = async ({
   };
 }) => {
   const userService = new UserService();
-  const session = await auth();
+  const session = await getServerSession();
   if (!session) {
     throw new UnauthorizedError();
   }
   const memberId = session?.user.memberId;
   const currentPage = Number(searchParams?.page) ?? 1;
-  const usersPageResult = await userService.fetchUsersPage(memberId, currentPage, USERS_PER_PAGE);
+  const usersPageResult = await userService.getList(memberId, currentPage, USERS_PER_PAGE);
   if (!usersPageResult.success) {
     throw new Error(usersPageResult.errorInfo?.message);
   }

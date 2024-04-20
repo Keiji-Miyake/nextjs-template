@@ -64,12 +64,10 @@ class UserService {
    * @param data
    * @returns
    */
-  async create(
-    memberId: string,
-    data: {
-      [k: string]: FormDataEntryValue;
-    },
-  ): Promise<User | null> {
+  async create(data: {
+    [k: string]: FormDataEntryValue;
+  }): Promise<User | null> {
+    const memberId = data.memberId as string;
     const fileUploadPath = `${memberId}/user/${data.email}`;
     let profileIconPath = "";
     console.debug("ユーザー作成開始:", data);
@@ -102,7 +100,7 @@ class UserService {
       };
 
       // プロフィール画像をアップロードする。失敗しても処理は続行する
-      if (profileIcon) {
+      if (profileIcon instanceof File) {
         userData.profileIcon = await uploadImageToS3(
           profileIcon,
           fileUploadPath,
@@ -120,10 +118,14 @@ class UserService {
     }
   }
 
-  async fetchUsers(memberId: string): Promise<User[] | null> {
+  async getAll(
+    memberId: string,
+    searchParams: URLSearchParams,
+  ): Promise<User[] | null> {
     if (!memberId) return null;
+    console.debug(searchParams);
     try {
-      const users = await this.userRepository.findByMemberId(memberId);
+      const users = await this.userRepository.findMany(memberId);
       return users;
     } catch (error) {
       throw error;
@@ -138,7 +140,7 @@ class UserService {
    * @returns users, totalCount
    * @throws
    */
-  async fetchUsersPage(
+  async getList(
     memberId: string,
     page: number,
     perPage: number,

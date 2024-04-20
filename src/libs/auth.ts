@@ -1,14 +1,9 @@
-import { getServerSession } from "next-auth";
+import { getServerSession as getServerSessionNextAuth } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import MemberService from "@/domains/member/service";
 
-import type {
-  GetServerSidePropsContext,
-  NextApiRequest,
-  NextApiResponse,
-} from "next";
 import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
@@ -94,21 +89,11 @@ export const authOptions: NextAuthOptions = {
   },
 } satisfies NextAuthOptions;
 
-// Use it in server contexts
-export function auth(
-  ...args:
-    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
-    | [NextApiRequest, NextApiResponse]
-    | []
-) {
-  return getServerSession(...args, authOptions);
-}
-
-export const getAuthSession = async () => {
-  const session = await getServerSession(authOptions);
-  if (session) {
-    return session;
-  } else {
+export const getServerSession = async () => {
+  const session = await getServerSessionNextAuth(authOptions);
+  if (!session || !session.user) {
     throw new UnauthorizedError();
   }
+
+  return session;
 };

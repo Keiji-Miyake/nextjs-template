@@ -2,13 +2,13 @@ import { NextRequest } from "next/server";
 
 import { NotFoundError } from "@/domains/error/class/NotFoundError";
 import { UserProfilePutSchema } from "@/domains/user/schema";
-import { getAuthSession } from "@/libs/auth";
+import { getServerSession } from "@/libs/auth";
 import { prisma } from "@/libs/prisma";
 import { errorResponse, successResponse } from "@/libs/responseHandler";
 import { uploadImageToS3 } from "@/libs/s3";
 
 export async function PUT(req: NextRequest) {
-  const session = await getAuthSession();
+  const session = await getServerSession();
   // ログイン中でなければエラーを返す
   if (!session || !("user" in session)) {
     return new Response("Unauthorized", { status: 401 });

@@ -1,19 +1,45 @@
-version: "3"
+name: nextjs-template
+x-db: &postgres
+  image: postgres:16-alpine
+  environment:
+    POSTGRES_USER: ${DB_USER:-postgres}
+    POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    POSTGRES_DB: ${DB_NAME:-mydb}
+    TZ: ${TZ:-Asia/Tokyo}
+
 services:
-  db:
-    build:
-      context: ./.docker/postgres/
-      dockerfile: Dockerfile
+  db_primary:
+    <<: *postgres
+    command: -c "hba_file=/etc/postgresql/pg_hba.conf"
     ports:
       - ${DB_PORT:-5432}:5432
-    environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-postgres}
-      LANG: ${DB_LANG:-ja_JP.UTF-8}
-      TZ: ${TZ:-Asia/Tokyo}
     volumes:
-      - ./.docker-volumes/postgres/data:/var/lib/postgresql/data
+      - db_primary:/var/lib/postgresql/data
+      - .docker/db_primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - .docker/db_primary/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db_replica:
+    <<: *postgres
+    entrypoint: /etc/postgresql/entrypoint.sh
+    ports:
+      - ${DB_REPLICA_PORT:-5433}:5432
+    volumes:
+      - db_replica:/var/lib/postgresql/data
+      - .docker/db_replica/entrypoint.sh:/etc/postgresql/entrypoint.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      db_primary:
+        condition: service_healthy
+
   adminer:
     image: adminer
     ports:
@@ -24,7 +50,7 @@ services:
       ADMINER_DEFAULT_PASSWORD: ${DB_PASSWORD:-postgres}
       ADMINER_DESIGN: ${ADMINER_DESIGN:-nette}
     depends_on:
-      - db
+      - db_primary
 
   minio:
     image: minio/minio
@@ -58,3 +84,7 @@ services:
     environment:
       MH_STORAGE: maildir
       MH_MAILDIR_PATH: /tmp/mailhog
+
+volumes:
+  db_primary:
+  db_replica:

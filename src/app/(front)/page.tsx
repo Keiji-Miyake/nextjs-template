@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 import { Button } from "@/components/ui/button";
 import UserProfile from "@/components/user-profile";
-import { auth } from "@/libs/auth";
+import { getServerSession } from "@/libs/auth";
 
 export const metadata: Metadata = {
   title: "My Page Title",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const inter = Inter({ subsets: ["latin"] });
 
 export default async function Home() {
-  const session = await auth();
+  const session = await getServerSession();
   console.debug(session);
 
   return (

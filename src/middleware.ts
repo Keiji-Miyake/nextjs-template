@@ -38,6 +38,7 @@ const authMiddleware = withAuth({
 
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/member/:path*",
     "/profile/:path*",

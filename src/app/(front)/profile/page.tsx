@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
 import UserService from "@/domains/user/service";
-import { auth } from "@/libs/auth";
+import { getServerSession } from "@/libs/auth";
 
 import EditForm from "./EditForm";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const session = await auth();
+  const session = await getServerSession();
   if (!session) throw new UnauthorizedError();
   const userService = new UserService();
   const profile = await userService.getProfile(session?.user?.id);
