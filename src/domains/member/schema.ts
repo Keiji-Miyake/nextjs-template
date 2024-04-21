@@ -3,15 +3,7 @@ import { z } from "zod";
 import { MEMBER_ID_LENGTH } from "@/config/site";
 import { fileSchema } from "@/libs/zod";
 
-export type TMemberBaseSchema = z.infer<typeof MemberBaseSchema>;
-export type TMemberRegisterFormSchema = z.infer<
-  typeof MemberRegisterFormSchema
->;
-export type TMemberRegisterPostSchema = z.infer<
-  typeof MemberRegisterPostSchema
->;
-
-export const MemberBaseSchema = z.object({
+export const memberBaseSchema = z.object({
   id: z
     .string()
     .length(
@@ -29,11 +21,12 @@ export const MemberBaseSchema = z.object({
     ),
 });
 
-export const MemberRegisterFormSchema = MemberBaseSchema.pick({
-  email: true,
-  name: true,
-  password: true,
-})
+export const memberRegisterFormSchema = memberBaseSchema
+  .pick({
+    email: true,
+    name: true,
+    password: true,
+  })
   .extend({
     logo: fileSchema(true).optional(),
     confirmPassword: z.string().optional(),
@@ -43,11 +36,12 @@ export const MemberRegisterFormSchema = MemberBaseSchema.pick({
     path: ["confirmPassword"],
   });
 
-export const MemberRegisterPostSchema = MemberBaseSchema.pick({
-  email: true,
-  name: true,
-  password: true,
-})
+export const memberRegisterSchema = memberBaseSchema
+  .pick({
+    email: true,
+    name: true,
+    password: true,
+  })
   .extend({
     logo: fileSchema(false).optional(),
     confirmPassword: z.string().optional(),

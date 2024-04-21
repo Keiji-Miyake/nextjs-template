@@ -2,9 +2,7 @@ import { Role } from "@prisma/client";
 import { z } from "zod";
 
 import { MEMBER_ID_LENGTH } from "@/config/site";
-import { customErrorMap, fileSchema } from "@/libs/zod";
-
-z.setErrorMap(customErrorMap);
+import { fileSchema } from "@/libs/zod";
 
 export type TUserBaseSchema = z.infer<typeof UserBaseSchema>;
 export type TUserCreateFormSchema = z.infer<typeof UserCreateFormSchema>;

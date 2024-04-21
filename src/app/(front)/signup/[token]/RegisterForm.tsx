@@ -9,21 +9,15 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MemberRegisterFormSchema, TMemberRegisterFormSchema } from "@/domains/member/schema";
+import { memberRegisterFormSchema } from "@/domains/member/schema";
+import { MemberRegisterFormSchema } from "@/domains/member/type";
 
 const RegisterForm = ({ email }: { email: string }) => {
   const router = useRouter();
-  const form = useForm<TMemberRegisterFormSchema>({
+  const form = useForm<MemberRegisterFormSchema>({
     mode: "onChange",
-    resolver: zodResolver(MemberRegisterFormSchema),
+    resolver: zodResolver(memberRegisterFormSchema),
     defaultValues: {
-      email: email,
-      name: "",
-      logo: undefined,
-      password: "",
-      confirmPassword: "",
-    },
-    values: {
       email: email,
       name: "",
       logo: undefined,
@@ -35,7 +29,7 @@ const RegisterForm = ({ email }: { email: string }) => {
   const { errors, isSubmitting } = form.formState;
 
   // useFormのhandleSubmitを使ってフォームを送信する
-  const onSubmit = form.handleSubmit(async (data: TMemberRegisterFormSchema) => {
+  const onSubmit = form.handleSubmit(async (data: MemberRegisterFormSchema) => {
     const formData = new FormData();
     // dataの各プロパティをFormDataに追加する
     Object.entries(data).forEach(([key, value]) => {
@@ -52,7 +46,7 @@ const RegisterForm = ({ email }: { email: string }) => {
 
     try {
       // リクエストを送信する
-      const response = await fetch("/api/v1/member", {
+      const response = await fetch("/api/v1/members", {
         method: "POST",
         body: formData,
       });
@@ -68,7 +62,6 @@ const RegisterForm = ({ email }: { email: string }) => {
         password: data.password,
         redirect: false,
       });
-      console.debug("signInResponse", signInResponse);
 
       if (signInResponse?.error) {
         router.push("/signin");
@@ -78,7 +71,7 @@ const RegisterForm = ({ email }: { email: string }) => {
     } catch (error: any) {
       if (error.fieldErrors) {
         Object.entries(error.fieldErrors).forEach(([key, value]) => {
-          form.setError(key as keyof TMemberRegisterFormSchema, {
+          form.setError(key as keyof MemberRegisterFormSchema, {
             message: value as string,
           });
         });

@@ -66,6 +66,16 @@ class SignUpService {
     }
     return tokenInfo;
   }
+
+  /**
+   * SignUpTokenを削除
+   * @param token
+   * @returns
+   * @throws Error
+   */
+  async delete(token: string): Promise<void> {
+    await this.signUpRepository.delete(token);
+  }
 }
 
 export default SignUpService;

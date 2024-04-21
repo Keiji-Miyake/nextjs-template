@@ -4,11 +4,14 @@ import bcrypt from "bcrypt";
 import "server-only";
 
 import { ConflictError } from "@/domains/error/class/ConflictError";
+import { NotFoundError } from "@/domains/error/class/NotFoundError";
 import UserRepository from "@/domains/user/repository";
 import { UserCreatePostSchema } from "@/domains/user/schema";
 import generateErrorInfo from "@/libs/error";
 import { prisma } from "@/libs/prisma";
 import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
+
+import { BadRequestError } from "../error/class/BadRequestError";
 
 import type { TFetchUsersPageResult } from "@/domains/error/type";
 import type { UserProfile } from "@/domains/user/type";
@@ -156,6 +159,41 @@ class UserService {
     } catch (error) {
       const errorInfo = generateErrorInfo(error);
       return { success: false, errorInfo };
+    }
+  }
+
+  /**
+   * サインイン
+   * @param credentials
+   * @returns Promise<Member>
+   * @throws Error
+   */
+  async rootSignIn(credentials: Record<"email" | "password", string>) {
+    try {
+      // 1. ルートユーザーが存在するか
+      const rootUser = await this.userRepository.findRootUser({
+        email: credentials.email,
+      });
+      // 3. もし存在しなかったら
+      if (!rootUser) {
+        throw new NotFoundError("登録されていません。");
+      }
+
+      // 4. パスワードが正しいか
+      const isValidPassword = await bcrypt.compare(
+        credentials.password,
+        rootUser.password,
+      );
+
+      // 5. パスワードが正しくなかったら
+      if (!isValidPassword) {
+        throw new BadRequestError("パスワードが正しくありません。");
+      }
+
+      // 6. ログイン
+      return rootUser;
+    } catch (error) {
+      throw error;
     }
   }
 }

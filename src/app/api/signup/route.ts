@@ -34,12 +34,12 @@ export async function POST(req: NextRequest) {
     const text = `
 新規登録ありがとうございます。
 次のリンクをクリックして登録にお進みください。
-${process.env.NEXT_PUBLIC_WEB_URL}/signup/confirm?token=${token}
+${process.env.NEXT_PUBLIC_WEB_URL}/signup/${token}
 URLの有効期限は${expireAtText}です。
 `;
     const html = `
 <p>新規登録ありがとうございます。<br>次のリンクをクリックして登録にお進みください。</p>
-<p><a href="${process.env.NEXT_PUBLIC_WEB_URL}/signup/confirm?token=${token}">会員登録</a></p>
+<p><a href="${process.env.NEXT_PUBLIC_WEB_URL}/signup/${token}">会員登録</a></p>
 <p>URLの有効期限は${expireAtText}です。</p>
 `;
 

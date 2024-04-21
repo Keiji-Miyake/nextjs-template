@@ -2,7 +2,7 @@ import { getServerSession as getServerSessionNextAuth } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { UnauthorizedError } from "@/domains/error/class/UnauthorizedError";
-import MemberService from "@/domains/member/service";
+import UserService from "@/domains/user/service";
 
 import type { NextAuthOptions } from "next-auth";
 
@@ -34,10 +34,10 @@ export const authOptions: NextAuthOptions = {
         if (!credentials) {
           return null;
         }
-        const memberService = new MemberService();
+        const userService = new UserService();
 
         try {
-          const user = await memberService.signIn(credentials);
+          const user = await userService.rootSignIn(credentials);
           return {
             id: user.id,
             memberId: user.memberId,
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
           } as any;
         } catch (error) {
-          console.error("サインインエラー:", error);
+          console.error("/signin", error);
           return null;
         }
       },

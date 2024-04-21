@@ -11,55 +11,32 @@ class UserRepository {
     this.prisma = prisma;
   }
 
-  async findByRootUser(memberId: string): Promise<UserModel | null> {
-    try {
-      const rootUser = await this.prisma.user.findFirst({
-        where: { role: Role.ROOT, memberId },
-      });
-      return rootUser;
-    } catch (error) {
-      throw error;
-    }
+  async findRootUser(params: {
+    memberId?: string;
+    email?: string;
+  }): Promise<UserModel | null> {
+    const { memberId, email } = params;
+    return await this.prisma.user.findFirst({
+      where: {
+        role: Role.ROOT,
+        OR: [{ memberId }, { email }],
+      },
+    });
   }
 
-  async findById(id: number): Promise<UserModel | null> {
-    try {
-      const user = await this.prisma.user.findUnique({ where: { id } });
-      return user;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * メンバー内のユニークユーザーを取得
-   */
-  async findByMemberId(memberId: string): Promise<UserModel[] | null> {
-    try {
-      // rootユーザーで、memberIdを持つユーザーを検索する
-      const memberUsers = await this.prisma.user.findMany({
-        where: { memberId },
-      });
-      return memberUsers;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async findUnique(email: string, memberId: string): Promise<UserModel | null> {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          UniqueMemberUser: {
-            email: email,
-            memberId: memberId,
-          },
+  async findUnique(memberId: string, email: string): Promise<UserModel | null> {
+    return await this.prisma.user.findUnique({
+      where: {
+        UniqueMemberUser: {
+          email: email,
+          memberId: memberId,
         },
-      });
-      return user;
-    } catch (error) {
-      throw error;
-    }
+      },
+    });
+  }
+
+  async findMany(memberId: string): Promise<UserModel[]> {
+    return await this.prisma.user.findMany({ where: { memberId } });
   }
 
   /**

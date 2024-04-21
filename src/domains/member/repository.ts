@@ -1,12 +1,4 @@
-import {
-  Member,
-  Prisma,
-  PrismaClient,
-  Role,
-  SignUpToken,
-  User,
-} from "@prisma/client";
-import bcrypt from "bcrypt";
+import { Member, Prisma, PrismaClient, Role, User } from "@prisma/client";
 
 import { prisma } from "@/libs/prisma";
 
@@ -48,22 +40,6 @@ class MemberRepository {
   }
 
   /**
-   * 会員登録Tokenを検索
-   * @param token
-   * @returns Promise<RegistrationToken | null>
-   * @throws Error
-   */
-  async findSignUpToken(token: string): Promise<SignUpToken | null> {
-    try {
-      return await this.prisma.signUpToken.findUnique({
-        where: { token },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
    * ルートユーザーを検索
    * @param email
    * @param memberId
@@ -85,32 +61,10 @@ class MemberRepository {
     }
   }
 
-  async create(
-    createData: Prisma.MemberCreateInput,
-    password: string,
-  ): Promise<Member> {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    try {
-      return await this.prisma.member.create({
-        data: {
-          id: createData.id,
-          email: createData.email,
-          name: createData.name,
-          logo: createData.logo,
-          users: {
-            create: {
-              name: createData.name,
-              email: createData.email,
-              password: hashedPassword,
-              role: Role.ROOT,
-              profileIcon: createData.logo,
-            },
-          },
-        },
-      });
-    } catch (error: any) {
-      throw error;
-    }
+  async create(params: Prisma.MemberCreateInput): Promise<Member> {
+    return await this.prisma.member.create({
+      data: params,
+    });
   }
 
   async readAll(): Promise<Member[]> {

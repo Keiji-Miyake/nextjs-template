@@ -1,5 +1,5 @@
-import { MemberBaseSchema } from "../member/schema";
+import { memberBaseSchema } from "../member/schema";
 
-export const signUpSchema = MemberBaseSchema.pick({
+export const signUpSchema = memberBaseSchema.pick({
   email: true,
 });
