@@ -77,7 +77,15 @@ const Header = () => {
             <NavigationMenuList>
               {session && (
                 <NavigationMenuItem>
-                  <Link href="/member/users" legacyBehavior passHref>
+                  <Link href="/member" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>Member</NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              )}
+
+              {session && (
+                <NavigationMenuItem>
+                  <Link href="/users" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>User</NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>

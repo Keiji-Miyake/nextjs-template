@@ -32,36 +32,18 @@ class MemberService {
   }
 
   /**
-   * ルートユーザーが既に存在するかどうか
-   * @param memberId
-   * @param email
-   * @returns Promise<boolean>
-   */
-  async isExistingRootUser(memberId: string, email: string): Promise<boolean> {
-    try {
-      const existingUser = await this.memberRepository.findRootUser(
-        email,
-        memberId,
-      );
-      return existingUser ? true : false;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
    * 会員番号を生成
    * @returns Promise<string>
    */
   async generateMemberId(): Promise<string> {
     try {
-      const memberId = await generateSecureRandomString(MEMBER_ID_LENGTH);
+      const id = await generateSecureRandomString(MEMBER_ID_LENGTH);
       // 既に存在する会員番号でないか
-      const existingMember = await this.memberRepository.findById(memberId);
+      const existingMember = await this.memberRepository.get({ id });
       if (existingMember) {
         return this.generateMemberId();
       }
-      return memberId;
+      return id;
     } catch (error) {
       throw error;
     }
@@ -75,6 +57,16 @@ class MemberService {
    */
   async register(params: Prisma.MemberCreateInput): Promise<Member> {
     return await this.memberRepository.create(params);
+  }
+
+  /**
+   * 会員情報を取得
+   * @param ownerId
+   * @returns Promise<Member | null>
+   * @throws Error
+   */
+  async getCurrent(id: string): Promise<Member | null> {
+    return await this.memberRepository.get({ id });
   }
 }
 

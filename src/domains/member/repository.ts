@@ -1,4 +1,4 @@
-import { Member, Prisma, PrismaClient, Role, User } from "@prisma/client";
+import { Member, Prisma, PrismaClient } from "@prisma/client";
 
 import { prisma } from "@/libs/prisma";
 
@@ -15,12 +15,14 @@ class MemberRepository {
    * @returns Promise<Member | null>
    * @throws Error
    */
-  async findById(id: string): Promise<Member | null> {
-    try {
-      return await this.prisma.member.findUnique({ where: { id } });
-    } catch (error) {
-      throw error;
-    }
+  async get(params: { id?: string; email?: string }): Promise<Member | null> {
+    const { id, email } = params;
+    return await this.prisma.member.findUnique({
+      where: {
+        id: id !== undefined ? id : undefined,
+        email: email !== undefined ? email : undefined,
+      },
+    });
   }
 
   /**
@@ -34,28 +36,6 @@ class MemberRepository {
       return await this.prisma.member.findUnique({
         where: { email, deletedAt: null },
       });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * ルートユーザーを検索
-   * @param email
-   * @param memberId
-   * @returns Promise<User | null>
-   * @throws Error
-   */
-  async findRootUser(email: string, memberId?: string): Promise<User | null> {
-    try {
-      const rootUser = await this.prisma.user.findFirst({
-        where: {
-          role: Role.ROOT,
-          memberId,
-          email,
-        },
-      });
-      return rootUser;
     } catch (error) {
       throw error;
     }
