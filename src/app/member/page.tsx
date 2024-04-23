@@ -75,6 +75,22 @@ const page = async () => {
                   {dayjs(member.createdAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
                 </td>
               </tr>
+              <tr className="m-0 border-t p-0 even:bg-muted">
+                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                  Updated At
+                </td>
+                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                  {dayjs(member.updatedAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                </td>
+              </tr>
+              <tr className="m-0 border-t p-0 even:bg-muted">
+                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                  Deleted At
+                </td>
+                <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                  {dayjs(member.deletedAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
