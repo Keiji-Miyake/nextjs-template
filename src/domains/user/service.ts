@@ -1,19 +1,18 @@
-import { Prisma, User } from "@prisma/client";
-import bcrypt from "bcrypt";
-
 import "server-only";
+
+import { Prisma, User } from "@prisma/client";
+import { Record } from "@prisma/client/runtime/library";
+import bcrypt from "bcrypt";
 
 import { ConflictError } from "@/domains/error/class/ConflictError";
 import { NotFoundError } from "@/domains/error/class/NotFoundError";
 import UserRepository from "@/domains/user/repository";
 import { UserCreatePostSchema } from "@/domains/user/schema";
-import generateErrorInfo from "@/libs/error";
 import { prisma } from "@/libs/prisma";
 import { deleteImageFromS3, uploadImageToS3 } from "@/libs/s3";
 
 import { BadRequestError } from "../error/class/BadRequestError";
 
-import type { TFetchUsersPageResult } from "@/domains/error/type";
 import type { UserProfile } from "@/domains/user/type";
 
 class UserService {
@@ -30,15 +29,8 @@ class UserService {
    * @returns
    */
   async isExistingUser(email: string, memberId: string): Promise<boolean> {
-    try {
-      const existingUser = await this.userRepository.findUnique(
-        email,
-        memberId,
-      );
-      return existingUser ? true : false;
-    } catch (error) {
-      throw error;
-    }
+    const existingUser = await this.userRepository.findUnique(email, memberId);
+    return existingUser ? true : false;
   }
 
   /**
@@ -121,45 +113,31 @@ class UserService {
     }
   }
 
-  async getAll(
-    memberId: string,
-    searchParams: URLSearchParams,
-  ): Promise<User[] | null> {
+  /**
+   * 会員に紐づくユーザーを全て取得
+   * @param memberId
+   * @returns
+   */
+  async getAllForMember(memberId: string): Promise<User[] | null> {
     if (!memberId) return null;
-    console.debug(searchParams);
-    try {
-      const users = await this.userRepository.findMany(memberId);
-      return users;
-    } catch (error) {
-      throw error;
-    }
+
+    return await this.userRepository.findManyForMember(memberId);
   }
 
   /**
-   * ページネーションを考慮したユーザー一覧取得
-   * @param memberId
-   * @param page
+   * 一覧取得
+   * @param memberId R
+   * @param searchQuery
    * @param perPage
    * @returns users, totalCount
    * @throws
    */
   async getList(
     memberId: string,
-    page: number,
+    searchParams: URLSearchParams,
     perPage: number,
-  ): Promise<TFetchUsersPageResult> {
-    try {
-      const users = await this.userRepository.findByMemberIdWithPagination(
-        memberId,
-        page,
-        perPage,
-      );
-      const totalCount = await this.userRepository.countByMemberId(memberId);
-      return { success: true, users, totalCount };
-    } catch (error) {
-      const errorInfo = generateErrorInfo(error);
-      return { success: false, errorInfo };
-    }
+  ): Promise<User[] | null> {
+    return await this.userRepository.getList(memberId, searchParams, perPage);
   }
 
   /**

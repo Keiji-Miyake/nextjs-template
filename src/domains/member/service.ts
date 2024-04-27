@@ -23,12 +23,8 @@ class MemberService {
    * @returns Promise<boolean>
    */
   async isExisting(email: string): Promise<boolean> {
-    try {
-      const existingMember = await this.memberRepository.findByEmail(email);
-      return existingMember ? true : false;
-    } catch (error) {
-      throw error;
-    }
+    const existingMember = await this.memberRepository.findByEmail(email);
+    return existingMember ? true : false;
   }
 
   /**
@@ -36,17 +32,13 @@ class MemberService {
    * @returns Promise<string>
    */
   async generateMemberId(): Promise<string> {
-    try {
-      const id = await generateSecureRandomString(MEMBER_ID_LENGTH);
-      // 既に存在する会員番号でないか
-      const existingMember = await this.memberRepository.get({ id });
-      if (existingMember) {
-        return this.generateMemberId();
-      }
-      return id;
-    } catch (error) {
-      throw error;
+    const id = await generateSecureRandomString(MEMBER_ID_LENGTH);
+    // 既に存在する会員番号でないか
+    const existingMember = await this.memberRepository.get({ id });
+    if (existingMember) {
+      return this.generateMemberId();
     }
+    return id;
   }
 
   /**

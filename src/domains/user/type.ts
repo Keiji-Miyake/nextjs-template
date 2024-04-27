@@ -25,3 +25,7 @@ export type CreateUserInput = {
   role: RoleName;
   profileIcon: File | null;
 };
+
+export type SearchParams = {
+  page?: number;
+};

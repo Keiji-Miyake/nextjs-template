@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import dayjs from "dayjs";
 import { Metadata } from "next";
@@ -33,127 +34,125 @@ export const metadata: Metadata = {
   description: "ユーザー一覧ページ",
 };
 
-const users = async ({
-  searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-    page?: string;
-  };
-}) => {
+const users = async ({ searchParams }: { searchParams: URLSearchParams }) => {
   const userService = new UserService();
   const session = await getServerSession();
   if (!session) {
     throw new UnauthorizedError();
   }
   const memberId = session?.user.memberId;
-  const currentPage = Number(searchParams?.page) ?? 1;
-  const usersPageResult = await userService.getList(memberId, currentPage, USERS_PER_PAGE);
-  if (!usersPageResult.success) {
-    throw new Error(usersPageResult.errorInfo?.message);
-  }
-  const users = usersPageResult.users;
-  const totalPages = Math.ceil(usersPageResult.totalCount ?? 0 / USERS_PER_PAGE);
-  const totalCount = usersPageResult.totalCount ?? 0;
 
-  return (
-    <div className="container">
-      <h1>ユーザー一覧</h1>
-      <Button asChild>
-        <Link href={`/member/users/create`}>ユーザー作成</Link>
-      </Button>
-      <Table>
-        <TableCaption>ユーザー一覧</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">id</TableHead>
-            <TableHead>name</TableHead>
-            <TableHead>email</TableHead>
-            <TableHead>role</TableHead>
-            <TableHead>profileIcon</TableHead>
-            <TableHead>createdAt</TableHead>
-            <TableHead>updatedAt</TableHead>
-            <TableHead>deletedAt</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users?.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">
-                <Link href={`/member/users/edit/${user.id}`}>{user.id}</Link>
-              </TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.role}</TableCell>
-              <TableCell>{user.profileIcon}</TableCell>
-              <TableCell suppressHydrationWarning={true}>
-                {dayjs(user.createdAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
-              </TableCell>
-              <TableCell suppressHydrationWarning={true}>
-                {dayjs(user.updatedAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
-              </TableCell>
-              <TableCell suppressHydrationWarning={true}>
-                {dayjs(user.deletedAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+  try {
+    const users = await userService.getList(memberId, searchParams, USERS_PER_PAGE);
+    console.debug("users", users);
+    if (!users || !users.length) notFound();
+
+    const allUsers = await userService.getAllForMember(memberId);
+    const totalCount = allUsers?.length ?? 0;
+    const totalPages = Math.ceil(totalCount ?? 0 / USERS_PER_PAGE);
+    const currentPage = searchParams instanceof URLSearchParams ? Number(searchParams.get("page")) : 1;
+
+    return (
+      <div className="container">
+        <h1>ユーザー一覧</h1>
+        <Button asChild>
+          <Link href={`/member/users/create`}>ユーザー作成</Link>
+        </Button>
+        <Table>
+          <TableCaption>ユーザー一覧</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">id</TableHead>
+              <TableHead>name</TableHead>
+              <TableHead>email</TableHead>
+              <TableHead>role</TableHead>
+              <TableHead>profileIcon</TableHead>
+              <TableHead>createdAt</TableHead>
+              <TableHead>updatedAt</TableHead>
+              <TableHead>deletedAt</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users?.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">
+                  <Link href={`/member/users/edit/${user.id}`}>{user.id}</Link>
+                </TableCell>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>{user.profileIcon}</TableCell>
+                <TableCell suppressHydrationWarning={true}>
+                  {dayjs(user.createdAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                </TableCell>
+                <TableCell suppressHydrationWarning={true}>
+                  {dayjs(user.updatedAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                </TableCell>
+                <TableCell suppressHydrationWarning={true}>
+                  {dayjs(user.deletedAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3}>Total</TableCell>
+              <TableCell className="text-right">{totalCount}</TableCell>
+              <TableCell colSpan={4}>
+                {totalPages > 1 && (
+                  <Pagination>
+                    <PaginationContent>
+                      {currentPage > 1 ? (
+                        <PaginationItem>
+                          <PaginationPrevious href={`?page=${currentPage - 1}`} />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem>
+                          <PaginationPrevious href="" />
+                        </PaginationItem>
+                      )}
+                      {currentPage > 2 && (
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      )}
+                      {currentPage > 1 && (
+                        <PaginationItem>
+                          <PaginationLink href={`?page=${currentPage - 1}`}>{currentPage - 1}</PaginationLink>
+                        </PaginationItem>
+                      )}
+                      <PaginationItem>{currentPage}</PaginationItem>
+                      {currentPage < totalPages && (
+                        <PaginationItem>
+                          <PaginationLink href={`?page=${currentPage + 1}`}>{currentPage + 1}</PaginationLink>
+                        </PaginationItem>
+                      )}
+                      {currentPage < totalPages - 1 && (
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      )}
+                      {currentPage < totalPages ? (
+                        <PaginationItem>
+                          <PaginationNext href={`?page=${currentPage + 1}`} />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem>
+                          <PaginationNext href="" />
+                        </PaginationItem>
+                      )}
+                    </PaginationContent>
+                  </Pagination>
+                )}
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">{totalCount}</TableCell>
-            <TableCell colSpan={4}>
-              {totalPages > 1 && (
-                <Pagination>
-                  <PaginationContent>
-                    {currentPage > 1 ? (
-                      <PaginationItem>
-                        <PaginationPrevious href={`?page=${currentPage - 1}`} />
-                      </PaginationItem>
-                    ) : (
-                      <PaginationItem>
-                        <PaginationPrevious href="" />
-                      </PaginationItem>
-                    )}
-                    {currentPage > 2 && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-                    {currentPage > 1 && (
-                      <PaginationItem>
-                        <PaginationLink href={`?page=${currentPage - 1}`}>{currentPage - 1}</PaginationLink>
-                      </PaginationItem>
-                    )}
-                    <PaginationItem>{currentPage}</PaginationItem>
-                    {currentPage < totalPages && (
-                      <PaginationItem>
-                        <PaginationLink href={`?page=${currentPage + 1}`}>{currentPage + 1}</PaginationLink>
-                      </PaginationItem>
-                    )}
-                    {currentPage < totalPages - 1 && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-                    {currentPage < totalPages ? (
-                      <PaginationItem>
-                        <PaginationNext href={`?page=${currentPage + 1}`} />
-                      </PaginationItem>
-                    ) : (
-                      <PaginationItem>
-                        <PaginationNext href="" />
-                      </PaginationItem>
-                    )}
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </div>
-  );
+          </TableFooter>
+        </Table>
+      </div>
+    );
+  } catch (error) {
+    throw error;
+  }
 };
 
 export default users;

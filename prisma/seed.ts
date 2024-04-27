@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { faker } from '@faker-js/faker';
+import { PrismaClient, Role } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
@@ -26,6 +27,23 @@ async function seed() {
         role: 'ROOT',
       },
     });
+
+
+    // ユーザーを150件作成
+    // roleは、ROOT, ADMIN, USERの3種類
+    // createdAtはfakerをつかってランダムな日時で。
+    for (let i = 0; i < 150; i++) {
+      await prisma.user.create({
+        data: {
+          memberId: 'member01',
+          name: `User ${i}`,
+          email: `user${i}@example.com`,
+          password: hashedPassword,
+          role: i < 10 ? Role.ROOT : i < 50 ? Role.ADMIN : Role.USER,
+          createdAt: faker.date.past(),
+        }
+      });
+    }
 
     console.log('Records created successfully:', member, user);
   } catch (error) {

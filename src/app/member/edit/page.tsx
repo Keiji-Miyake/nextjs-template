@@ -7,6 +7,7 @@ import MemberEditForm from "./MemberEditForm";
 const page = async () => {
   const session = await getServerSession();
   if (!session?.user?.memberId) notFound();
+
   return (
     <div className="container">
       <h1>会員情報編集</h1>
