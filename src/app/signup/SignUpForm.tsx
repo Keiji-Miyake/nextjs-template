@@ -8,11 +8,13 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { signUpSchema } from "@/domains/signup/schema";
 import { SignUpSchema } from "@/domains/signup/type";
 
 const SignUpForm = () => {
   const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<SignUpSchema>({
     mode: "onChange",
     resolver: zodResolver(signUpSchema),
@@ -32,7 +34,10 @@ const SignUpForm = () => {
       const json = await response.json();
 
       if (!response.ok) {
-        throw json;
+        return toast({
+          variant: "destructive",
+          description: json.message,
+        });
       }
 
       return router.push("/signup/finish");

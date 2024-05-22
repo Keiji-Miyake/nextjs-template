@@ -8,7 +8,7 @@ export default function generateErrorInfo(error: unknown): ErrorInfo {
   let errorInfo: ErrorInfo;
 
   if (error instanceof BaseError) {
-    errorInfo = ErrorDictionary[error.code];
+    errorInfo = error.errorInfo();
   } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       errorInfo = ErrorDictionary.CONFLICT;

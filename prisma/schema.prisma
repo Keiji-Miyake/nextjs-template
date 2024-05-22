@@ -34,6 +34,8 @@ model Member {
   deletedAt DateTime?
   users     User[]
   groups    Group[]
+
+  @@map(name: "members")
 }
 
 model User {
@@ -51,7 +53,9 @@ model User {
   member      Member    @relation(fields: [memberId], references: [id])
   groups      Group[]
   sessions    Session[]
+
   @@unique(fields: [email, memberId], name: "UniqueMemberUser")
+  @@map(name: "users")
 }
 
 model Session {
@@ -71,4 +75,6 @@ model Group {
   memberId  String    @db.VarChar(8)
   member    Member    @relation(fields: [memberId], references: [id])
   users     User[] // 多対多リレーションを追加
+
+  @@map(name: "groups")
 }

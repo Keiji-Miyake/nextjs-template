@@ -12,9 +12,9 @@ import { sendEmail } from "@/libs/sendmail";
 export async function POST(req: NextRequest) {
   const signUpService = new SignUpService();
   const memberService = new MemberService();
-  const signUpData = await req.json();
 
   try {
+    const signUpData = await req.json();
     const { email } = signUpSchema.parse(signUpData);
 
     // 登録済みのメールアドレスかどうかを確認する
