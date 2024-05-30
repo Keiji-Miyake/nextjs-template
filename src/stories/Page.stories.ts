@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/await-thenable */
-import { userEvent, within } from "@storybook/testing-library";
+import { userEvent, within } from "@storybook/test";
 
 import { Page } from "./Page";
 

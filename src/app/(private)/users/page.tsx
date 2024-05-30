@@ -83,13 +83,13 @@ const users = async ({ searchParams }: { searchParams: URLSearchParams }) => {
                 <TableCell>{user.role}</TableCell>
                 <TableCell>{user.profileIcon}</TableCell>
                 <TableCell suppressHydrationWarning={true}>
-                  {dayjs(user.createdAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                  {dayjs(user.createdAt).format("YYYY年MM月DD日 HH:mm:ss")}
                 </TableCell>
                 <TableCell suppressHydrationWarning={true}>
-                  {dayjs(user.updatedAt.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                  {dayjs(user.updatedAt).format("YYYY年MM月DD日 HH:mm:ss")}
                 </TableCell>
                 <TableCell suppressHydrationWarning={true}>
-                  {dayjs(user.deletedAt?.toString()).format("YYYY年MM月DD日 HH:mm:ss")}
+                  {dayjs(user.deletedAt || null).format("YYYY年MM月DD日 HH:mm:ss")}
                 </TableCell>
               </TableRow>
             ))}
